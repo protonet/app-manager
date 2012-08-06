@@ -13,8 +13,6 @@
     "node": "~0.8.3"
   },
   "dependencies": {
-    "adm-zip": "0.1.4",
-    "express": "3.0.0rc1"
   },
   "devDependencies": {}
 }
