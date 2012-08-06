@@ -1,0 +1,21 @@
+{
+  "author": "Daniel Lamando <me@danopia.net> (http://danopia.net/)",
+  "name": "app-manager",
+  "description": "App management system for protonet",
+  "version": "0.0.1",
+  "homepage": "https://github.com/protonet/app-manager",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/protonet/app-manager.git"
+  },
+  "main": "index.js",
+  "engines": {
+    "node": "~0.8.3"
+  },
+  "dependencies": {
+    "adm-zip": "0.1.4",
+    "express": "3.0.0rc1"
+  },
+  "devDependencies": {}
+}
+
