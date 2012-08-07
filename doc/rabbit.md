@@ -39,7 +39,7 @@ sequence numbers so that the response handlers can know what it's dealing with.
 Methods
 -------
 
-### startInstall
+### install
 
 * `uri`: URI to fetch the application from (git://, http://, user@host:repo.git)
 * `id`: Optional id for the application, which is used for the filesystem, URLs,
@@ -60,16 +60,23 @@ Begins the installation of an app. Response structure:
 
 ### list
 
-* `id`: Optional partial filter for the id field
-* `name`: Optional partial filter for the name field
-* `desc`: Optional partial filter for the description field
-* `state`: Optional filter for the state field (i.e. `"running"`)
+* `id`: Optional partial filter for the id field.
+* `name`: Optional partial filter for the name field.
+* `desc`: Optional partial filter for the description field.
+* `state`: Optional filter for the state field (i.e. `"running"`).
 
-Returns a list of apps that exist on the system. Specifying no arguments will
+Returns an *array* of apps that exist on the system. Specifying no arguments will
 return every known app. Filters on multiple fields will be treated as an AND.
 
-Response is an *array* of objects with at least `id`, `name`, `desc`, `source`,
+Objects in the response contain at least `id`, `name`, `desc`, `source`,
 `baseuri`, and `state`.
+
+### show
+
+* `id`: The id of the app to get info on.
+
+Return an object with at least `id`, `name`, `desc`, `source`, `baseuri`,
+`state`, `config`, `buildpack`, and `installedAt`.
 
 ### setState
 
@@ -78,8 +85,11 @@ Response is an *array* of objects with at least `id`, `name`, `desc`, `source`,
 
     * `running` starts the app if it isn't running.
     * `stopped` stops the app if it is running.
+    * `disabled` stops the app if it is running, and marks it to not start again
+      until setState is used to renable it (by changing the state to any other
+      value).
 
 Requests a state change of an app. Returns simply the current state of the app.
 Multiple responses may be returned until the target state is reached (for
-example, a running app may initially cause a `"stopping"` response, then a later
-`"stopped"` response).
+example, a running app may initially cause a `"stopping"` response, then a
+`"stopped"` response in the future).
