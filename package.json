@@ -17,6 +17,8 @@
     "mysql": "2.0.0-alpha3",
     "step": "0.0.5"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "ncurses": "0.2.4"
+  }
 }
 

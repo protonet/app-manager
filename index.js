@@ -3,6 +3,7 @@ var path  = require('path'),
     spawn = require('child_process').spawn,
     
     db    = require('./db'),
+    rpc   = require('./rpc'),
     httpd = require('./httpd');
 
 var storeRoot = path.join(path.dirname(module.filename), 'store');
@@ -105,6 +106,7 @@ db.connect(function () {
   }, function (err, id) {
     console.log(err, id);
   });//*/
+  /*
   db.update('apps', {name: 'helloworld'}, {
     manifest: {desc: "Says 'Hello' to the World."},
     label: "Hello, World"
@@ -114,7 +116,13 @@ db.connect(function () {
   
   db.conn.query('SELECT * FROM `app-manager`.`apps`').on('result', function(row) {
     console.log(row);
-  });
+  });*/
+  
+  var obj = {};
+  obj.hello = function (params, callback) {
+    callback(null, 'Hello, world!');
+  };
+  rpc.start(obj);
 });
 
 //installFrom('git@heroku.com:simple-mist-848.git');
