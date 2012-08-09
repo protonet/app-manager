@@ -16,7 +16,7 @@ This documentation is not yet completed.
 
 Overview
 --------
-App Manager binds to the `appmanager` queue on the `rpc` exchange and chills
+App Manager binds to the `app-manager` queue on the `rpc` exchange and chills
 there, waiting for JSON-based requests. Each request is expected to have the
 following basic structure:
 
