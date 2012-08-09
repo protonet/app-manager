@@ -91,11 +91,15 @@ scrollback.on('inputChar', function (c, i) {
   } else if (i === curses.keys.HOME) {
     scrollback.cursor(scrollback.height-1, 4);
     scrollback.refresh();
-  } else if (i === curses.keys.NEWLINE) {
-    addLine('', '');
-    addLine('>>>', buffer);
-    exports.handleLine(buffer);
-    buffer = '';
+  } else if (i === curses.keys.NEWLINE || i === 343) {
+    if (buffer.length == 0) {
+      addLine('', '');
+    } else {
+      addLine('', '');
+      addLine('>>>', buffer);
+      exports.handleLine(buffer);
+      buffer = '';
+    }
     
     scrollback.cursor(scrollback.height-1, 4);
     scrollback.clrtoeol();
@@ -103,6 +107,8 @@ scrollback.on('inputChar', function (c, i) {
   } else if (i >= 32 && i <= 126 && scrollback.curx < scrollback.width-4) {
     scrollback.echochar(i);
     buffer += c;
+  } else {
+    addLine('key', i.toString());
   }
 });
 
