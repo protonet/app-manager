@@ -12,7 +12,8 @@ exports.start = function (object) {
       queue.subscribe(function (message) {
         var data = JSON.parse(message.data.toString('utf8'));
         console.log(data);
-        object[data.method](data.params, function (err, res) {
+        var meth = object[data.method];
+        meth && meth(data.params, function (err, res) {
           console.log([err, res]);
           var resp = JSON.parse(JSON.stringify(data));
           resp.error = err;
