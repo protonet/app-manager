@@ -122,6 +122,9 @@ db.connect(function () {
   obj.hello = function (params, callback) {
     callback(null, 'Hello, world!');
   };
+  obj.help = function (params, callback) {
+    callback(null, 'The only valid command is hello.');
+  };
   rpc.start(obj);
 });
 
