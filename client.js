@@ -82,7 +82,7 @@ scrollback.on('inputChar', function (c, i) {
   } else if (i === curses.keys.LEFT && scrollback.curx > 4) {
       scrollback.cursor(scrollback.height-1, scrollback.curx-1);
     scrollback.refresh();
-  } else if (i === curses.keys.RIGHT && scrollback.curx < buffer.length-4) {
+  } else if (i === curses.keys.RIGHT && scrollback.curx < buffer.length+4) {
     scrollback.cursor(scrollback.height-1, scrollback.curx+1);
     scrollback.refresh();
   } else if (i === curses.keys.END) {
