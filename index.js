@@ -2,6 +2,7 @@ var path  = require('path'),
     fs    = require('fs'),
     spawn = require('child_process').spawn,
     
+    db    = require('./db'),
     httpd = require('./httpd');
 
 var storeRoot = path.join(path.dirname(module.filename), 'store');
@@ -30,7 +31,7 @@ function fetch (uri, callback) {
       spawn('git', ['clone', uri, path.join(appPath, 'src')]).on('exit', function () {
         callback(appPath);
       });
-    }
+    });
     
   } else if (uri.match(/^\/.+\.zip$/i)) {
     console.log('Local zip archive identified, extracting');
@@ -38,7 +39,7 @@ function fetch (uri, callback) {
       spawn('unzip', [uri, '-d', appPath, path.join(path.basename(uri, '.zip'), '*')]).on('exit', function () {
         callback(appPath);
       });
-    }
+    });
     
   } else {
     console.log('I have no idea how to grab ' + uri);
@@ -92,8 +93,33 @@ function startApp (slug, callback) {
   });
 }
 
+db.connect(function () {
+  console.log('Database ready');
+  
+  /*db.insert('apps', {
+    name: 'helloworld2',
+    label: 'Hello World 2',
+    manifest: {desc: "Says 'Hello' to the world again."},
+    config: {},
+    created_at: new Date()
+  }, function (err, id) {
+    console.log(err, id);
+  });//*/
+  db.update('apps', {name: 'helloworld'}, {
+    manifest: {desc: "Says 'Hello' to the World."},
+    label: "Hello, World"
+  }, function (err) {
+    console.log(err);
+  });
+  
+  db.conn.query('SELECT * FROM `app-manager`.`apps`').on('result', function(row) {
+    console.log(row);
+  });
+});
+
 //installFrom('git@heroku.com:simple-mist-848.git');
 
+/*
 installFrom('/home/danopia/Code/protonet/app-manager/apps/github-bridge.zip', function (slug) {
   console.log('Phew! Done installing ' + slug + '. Now trying to start it...');
   //var slug = 'node-example';
@@ -129,4 +155,5 @@ installFrom('/home/danopia/Code/protonet/app-manager/apps/jello.zip', function (
     console.log(packager.name + ' app ' + slug + ' is now running on http://localhost:7200/' + slug);
   });
 });
+*/
 
