@@ -28,9 +28,16 @@ function fetch (uri, callback) {
   
   if (uri.match(/^git(@|:\/\/)/)) {
     console.log('Remote git repo identified, cloning');
-    createName(path.basename(uri, '.git'), function (appPath) {
+    parts = uri.match(/^(.+?)(?:#([0-9a-f]+))?$/i);
+    createName(path.basename(parts[1], '.git'), function (appPath) {
       spawn('git', ['clone', uri, path.join(appPath, 'src')]).on('exit', function () {
-        callback(appPath);
+        if (parts[2]) {
+          spawn('git', ['checkout', '-f', parts[2]], {env: path.join(appPath, 'src')}).on('exit', function () {
+            callback(appPath);
+          });
+        } else {
+          callback(appPath);
+        }
       });
     });
     
