@@ -1,10 +1,10 @@
 var amqp   = require('amqp'),
     curses = require('ncurses'),
     
-    meid    = Math.round(Math.random()*1000000000),
+    meid   = Math.round(Math.random()*1000000000),
     me     = 'app-console-' + String(meid),
 
-    conn = amqp.createConnection();
+    conn   = amqp.createConnection();
 
 var root = new curses.Window();
 curses.colorPair(1, 2, 0);
