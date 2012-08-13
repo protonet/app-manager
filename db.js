@@ -1,6 +1,6 @@
 var mysql = require('mysql');
 
-exports.conf = require('./database.json');
+exports.conf = require('./conf/database.json');
 
 exports.test = function (goodCallback, badCallback) {
   exports.conn.query('SELECT * FROM `app-manager`.`apps`', function(err, rows, fields) {
