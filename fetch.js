@@ -33,28 +33,28 @@ exports.fetchInto = function (info, target, callback) {
   switch (info.method) {
   case 'git':
     spawn('git', ['clone', info.uri, target]).on('exit', function () {
-      if (parts[2]) {
-        var args = ['checkout', '-f', parts[2]],
-            opts = {env: path.join(appPath, 'src')};
-        spawn('git', args, opts).on('exit', function () {
-          callback(appPath);
+      if (info.commit) {
+        var args = ['checkout', '-f', info.commit];
+        
+        spawn('git', args, {env: target}).on('exit', function () {
+          callback(true);
         });
       } else {
-        callback(appPath);
+        callback(true);
       }
     });
+    break;
     
-  } else if (uri.match(/^\/.+\.zip$/i)) {
-    console.log('Local zip archive identified, extracting');
-    createName(path.basename(uri, '.zip'), function (appPath) {
-      var args = [uri, '-d', appPath, info.filter];
-      spawn('unzip', opts).on('exit', function () {
-        callback(appPath);
-      });
+  case 'unzip':
+    var args = [uri, '-d', target, info.filter];
+    spawn('unzip', opts).on('exit', function () {
+      callback(true);
     });
+    break;
     
-  } else {
+  default:
     console.log('I have no idea how to grab ' + uri);
+    callback(false);
     return false;
   }
 }
