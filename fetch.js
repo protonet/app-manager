@@ -26,6 +26,14 @@ exports.detect = function (uri) {
   }
 }
 
+exports.fetchIntoStore = function (info, store, callback) {
+  if (!info.basename) info = exports.detect(info);
+
+  exports.fetchInto(info, path.join(store, info.basename), function (success) {
+    callback(success, info.basename);
+  });
+}
+
 exports.fetchInto = function (info, target, callback) {
   if (!info.method) info = exports.detect(info);
   console.log('Fetching', info);
