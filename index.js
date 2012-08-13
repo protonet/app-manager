@@ -23,38 +23,6 @@ function createName (name, callback) {
   });
 }
 
-function fetch (uri, callback) {
-  console.log('Fetching ' + uri);
-  
-  if (uri.match(/^git(@|:\/\/)/)) {
-    console.log('Remote git repo identified, cloning');
-    parts = uri.match(/^(.+?)(?:#([0-9a-f]+))?$/i);
-    createName(path.basename(parts[1], '.git'), function (appPath) {
-      spawn('git', ['clone', uri, path.join(appPath, 'src')]).on('exit', function () {
-        if (parts[2]) {
-          spawn('git', ['checkout', '-f', parts[2]], {env: path.join(appPath, 'src')}).on('exit', function () {
-            callback(appPath);
-          });
-        } else {
-          callback(appPath);
-        }
-      });
-    });
-    
-  } else if (uri.match(/^\/.+\.zip$/i)) {
-    console.log('Local zip archive identified, extracting');
-    createName(path.basename(uri, '.zip'), function (appPath) {
-      spawn('unzip', [uri, '-d', appPath, path.join(path.basename(uri, '.zip'), '*')]).on('exit', function () {
-        callback(appPath);
-      });
-    });
-    
-  } else {
-    console.log('I have no idea how to grab ' + uri);
-    return false;
-  }
-}
-
 function installFrom (uri, callback) {
   fetch(uri, function (appPath) {
     console.log('Fetched into ' + appPath);
