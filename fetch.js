@@ -33,15 +33,12 @@ exports.fetchInto = function (info, target, callback) {
   switch (info.method) {
   case 'git':
     spawn('git', ['clone', info.uri, target]).on('exit', function () {
-      if (info.commit) {
-        var args = ['checkout', '-f', info.commit];
-        
-        spawn('git', args, {env: target}).on('exit', function () {
-          callback(true);
-        });
-      } else {
+      if (!info.commit) callback(true);
+      
+      var args = ['checkout', '-f', info.commit];
+      spawn('git', args, {env: target}).on('exit', function () {
         callback(true);
-      }
+      });
     });
     break;
     
