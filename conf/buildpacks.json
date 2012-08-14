@@ -1,9 +1,9 @@
-[{"name":"Ruby",    "uri":"https://github.com/heroku/heroku-buildpack-ruby"},
- {"name":"Node.js", "uri":"https://github.com/heroku/heroku-buildpack-nodejs"},
- {"name":"Clojure", "uri":"https://github.com/heroku/heroku-buildpack-clojure"},
- {"name":"Python",  "uri":"https://github.com/heroku/heroku-buildpack-python"},
- {"name":"Java",    "uri":"https://github.com/heroku/heroku-buildpack-java"},
- {"name":"Gradle",  "uri":"https://github.com/heroku/heroku-buildpack-gradle"},
- {"name":"Grails",  "uri":"https://github.com/heroku/heroku-buildpack-grails"},
- {"name":"Scala",   "uri":"https://github.com/heroku/heroku-buildpack-scala"},
- {"name":"Play",    "uri":"https://github.com/heroku/heroku-buildpack-play"}]
+[{"name":"Ruby",    "uri":"https://github.com/heroku/heroku-buildpack-ruby.git"},
+ {"name":"Node.js", "uri":"https://github.com/heroku/heroku-buildpack-nodejs.git"},
+ {"name":"Clojure", "uri":"https://github.com/heroku/heroku-buildpack-clojure.git"},
+ {"name":"Python",  "uri":"https://github.com/heroku/heroku-buildpack-python.git"},
+ {"name":"Java",    "uri":"https://github.com/heroku/heroku-buildpack-java.git"},
+ {"name":"Gradle",  "uri":"https://github.com/heroku/heroku-buildpack-gradle.git"},
+ {"name":"Grails",  "uri":"https://github.com/heroku/heroku-buildpack-grails.git"},
+ {"name":"Scala",   "uri":"https://github.com/heroku/heroku-buildpack-scala.git"},
+ {"name":"Play",    "uri":"https://github.com/heroku/heroku-buildpack-play.git"}]

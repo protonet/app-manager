@@ -3,7 +3,7 @@ var path  = require('path'),
     spawn = require('child_process').spawn;
 
 exports.detect = function (uri) {
-  if (uri.match(/^git(@|:\/\/)/)) {
+  if (uri.match(/^(git@|(git|https):\/\/)/)) {
     parts = uri.match(/^(.+?)(?:#([0-9a-f]+))?$/i);
     return {
       method: 'git',
