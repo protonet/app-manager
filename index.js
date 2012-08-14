@@ -54,7 +54,7 @@ function installFrom (uri, callback) {
           
           fs.writeFile(path.join(appPath, '.packager'), packager.id, 'utf8', function () {
             console.log('Associated ' + slug + ' with the ' + packager.name + ' engine');
-            console.log(slug + ' successfully assemblied and ready to roll.');
+            console.log(slug + ' successfully assembled and ready to roll.');
             
             callback(slug);
           });
@@ -120,32 +120,8 @@ db.connect(function () {
 
 /*
 installFrom('/home/danopia/Code/protonet/app-manager/apps/github-bridge.zip', function (slug) {
-  console.log('Phew! Done installing ' + slug + '. Now trying to start it...');
-  //var slug = 'node-example';
-  
-  startApp(slug, function (packager, port) {
-    console.log(packager.name + ' app ' + slug + ' is now running on http://localhost:7200/' + slug);
-  });
-});
-
 installFrom('/home/danopia/Code/protonet/app-manager/apps/hellojs.zip', function (slug) {
-  console.log('Phew! Done installing ' + slug + '. Now trying to start it...');
-  //var slug = 'node-example';
-  
-  startApp(slug, function (packager, port) {
-    console.log(packager.name + ' app ' + slug + ' is now running on http://localhost:7200/' + slug);
-  });
-});
-
 installFrom('/home/danopia/Code/protonet/app-manager/apps/hellojs2.zip', function (slug) {
-  console.log('Phew! Done installing ' + slug + '. Now trying to start it...');
-  //var slug = 'node-example';
-  
-  startApp(slug, function (packager, port) {
-    console.log(packager.name + ' app ' + slug + ' is now running on http://localhost:7200/' + slug);
-  });
-});
-
 installFrom('/home/danopia/Code/protonet/app-manager/apps/jello.zip', function (slug) {
   console.log('Phew! Done installing ' + slug + '. Now trying to start it...');
   //var slug = 'node-example';
@@ -154,5 +130,6 @@ installFrom('/home/danopia/Code/protonet/app-manager/apps/jello.zip', function (
     console.log(packager.name + ' app ' + slug + ' is now running on http://localhost:7200/' + slug);
   });
 });
+
 */
 
