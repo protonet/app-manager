@@ -11,7 +11,17 @@ var path  = require('path'),
     appRoot   = path.join(storeRoot, 'apps');
 
 pack.storePath = path.join(storeRoot, 'buildpacks');
-pack.maintainStore();
+//pack.maintainStore();
+var ruby = pack.Buildpack.fromStore('heroku-buildpack-ruby');
+console.log(ruby);
+ruby.detect('/home/danopia/Code/protonet/app-manager/store/apps/node-example', function (lang) {
+  console.log(lang);
+});
+var node = pack.Buildpack.fromStore('heroku-buildpack-nodejs');
+console.log(node);
+node.detect('/home/danopia/Code/protonet/app-manager/store/apps/node-example', function (lang) {
+  console.log(lang);
+});
 
 function createName (name, callback) {
   var appPath = path.join(appRoot, name);
