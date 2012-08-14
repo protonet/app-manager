@@ -5,10 +5,13 @@ var path  = require('path'),
     db    = require('./db'),
     rpc   = require('./rpc'),
     httpd = require('./httpd'),
+    pack  = require('./buildpack'),
 
     storeRoot = path.join(path.dirname(module.filename), 'store'),
-    appRoot   = path.join(storeRoot, 'apps'),
-    packRoot  = path.join(storeRoot, 'buildpacks');
+    appRoot   = path.join(storeRoot, 'apps');
+
+pack.storePath = path.join(storeRoot, 'buildpacks');
+pack.maintainStore();
 
 function createName (name, callback) {
   var appPath = path.join(appRoot, name);
