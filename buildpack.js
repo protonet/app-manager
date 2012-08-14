@@ -4,37 +4,52 @@ var path  = require('path'),
     yaml  = require('js-yaml'),
     fetch = require('./fetch');
 
-exports.maintainStore = function () {
+module.exports = function () {};
+
+module.exports.maintainStore = function () {
   var stock = require('./conf/buildpacks.json');
-  exports.stock = [];
+  module.exports.stock = [];
 
   for (var i = 0; i < stock.length; i++) {
-    var pack = exports.Buildpack.fromStock(stock[i]);
-    exports.sock.push(pack);
-    pack.ensureLatest(function (success) {
+    var pack = module.exports.fromStock(stock[i]);
+    module.exports.stock.push(pack);
+    /*pack.ensureLatest(function (success) {
       console.log('ensureLatest completed on', pack.path, '-', success);
-    });
+    });*/
   };
 };
 
-exports.Buildpack = function () {};
-
-exports.Buildpack.fromStock = function (info) {
-  var pack = new exports.Buildpack();
+module.exports.fromStock = function (info) {
+  var pack = new module.exports();
   pack.name = info.name;
   pack.sourceInfo = fetch.detect(info.uri);
-  pack.path = path.join(exports.storePath, pack.sourceInfo.basename);
+  pack.path = path.join(module.exports.storePath, pack.sourceInfo.basename);
   return pack;
 };
 
-exports.Buildpack.fromStore = function (name) {
-  var pack = new exports.Buildpack();
+module.exports.fromStore = function (name) {
+  var pack = new module.exports();
   pack.name = name;
-  pack.path = path.join(exports.storePath, name);
+  pack.path = path.join(module.exports.storePath, name);
   return pack;
 };
 
-exports.Buildpack.prototype = {
+module.exports.detect = function (buildPath, callback, stack) {
+  if (!stack) stack = module.exports.stock;
+  if (!stack.length) return callback(null);
+
+  var self = this;
+
+  stack[0].detect(buildPath, function (name) {
+    if (name) {
+      callback(stack[0], name);
+    } else {
+      self.detect(buildPath, callback, stack.splice(1));
+    };
+  });
+};
+
+module.exports.prototype = {
   onDisk: function (callback) {
     fs.exists(this.path, callback);
   },

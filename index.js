@@ -5,22 +5,16 @@ var path  = require('path'),
     db    = require('./db'),
     rpc   = require('./rpc'),
     httpd = require('./httpd'),
-    pack  = require('./buildpack'),
+    packs = require('./buildpack'),
 
     storeRoot = path.join(path.dirname(module.filename), 'store'),
     appRoot   = path.join(storeRoot, 'apps');
 
-pack.storePath = path.join(storeRoot, 'buildpacks');
-//pack.maintainStore();
-var ruby = pack.Buildpack.fromStore('heroku-buildpack-ruby');
-console.log(ruby);
-ruby.detect('/home/danopia/Code/protonet/app-manager/store/apps/node-example', function (lang) {
-  console.log(lang);
-});
-var node = pack.Buildpack.fromStore('heroku-buildpack-nodejs');
-console.log(node);
-node.detect('/home/danopia/Code/protonet/app-manager/store/apps/node-example', function (lang) {
-  console.log(lang);
+packs.storePath = path.join(storeRoot, 'buildpacks');
+packs.maintainStore();
+
+packs.detect('/home/danopia/Code/protonet/app-manager/store/apps/node-example', function (pack, name) {
+  console.log(pack, name);
 });
 
 function createName (name, callback) {
