@@ -29,7 +29,8 @@ exports.detect = function (uri) {
 exports.fetchIntoStore = function (info, store, callback) {
   if (!info.basename) info = exports.detect(info);
 
-  exports.fetchInto(info, path.join(store, info.basename), function (success) {
+  var target = path.join(store, info.basename);
+  exports.fetchInto(info, target, function (success) {
     callback(success, info.basename);
   });
 }
@@ -41,10 +42,10 @@ exports.fetchInto = function (info, target, callback) {
   switch (info.method) {
   case 'git':
     spawn('git', ['clone', info.uri, target]).on('exit', function () {
-      if (!info.commit) callback(true);
+      if (!info.commit) return callback(true);
       
       var args = ['checkout', '-f', info.commit];
-      spawn('git', args, {env: target}).on('exit', function () {
+      spawn('git', args, {cwd: target}).on('exit', function () {
         callback(true);
       });
     });
