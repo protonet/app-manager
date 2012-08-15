@@ -73,8 +73,8 @@ module.exports.prototype = {
   },
 
   // TODO: sandbox it a little
-  runBin: function (command, args, exitCall, dataCall) {
-    var proc = spawn(command, args || [], {cwd: this.path});
+  runBin: function (command, args, cwd, exitCall, dataCall) {
+    var proc = spawn(path.join(this.path, command), args || [], {cwd: (cwd || this.path)});
 
     proc.on('exit', exitCall);
     proc.stdout.setEncoding('utf8');
@@ -84,7 +84,7 @@ module.exports.prototype = {
   detect: function (buildPath, callback) {
     var buffer = '';
 
-    this.runBin('bin/detect', [buildPath], function (code) {
+    this.runBin('bin/detect', [buildPath], null, function (code) {
       callback(!code && buffer.slice(0, buffer.length - 1));
     }, function (data) {
       buffer += data;
@@ -94,7 +94,7 @@ module.exports.prototype = {
   compile: function (buildPath, cachePath, exitCall, lineCall) {
     var buffer = '';
 
-    this.runBin('bin/compile', [buildPath, cachePath], function (code) {
+    this.runBin('bin/compile', [buildPath, cachePath], buildPath, function (code) {
       exitCall(!code);
     }, function (data) {
       buffer += data;
@@ -109,7 +109,7 @@ module.exports.prototype = {
   release: function (buildPath, callback) {
     var buffer = '';
 
-    this.runBin('bin/release', [buildPath], function (code) {
+    this.runBin('bin/release', [buildPath], buildPath, function (code) {
       callback(yaml.load(buffer));
     }, function (data) {
       buffer += data;
