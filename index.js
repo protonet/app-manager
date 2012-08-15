@@ -58,16 +58,37 @@ db.connect(function () {
     fetch: function (params, callback) {
       var info = fetch.detect(params.uri);
       var basename = params.basename || info.basename;
-      var target = path.join(appRoot, basename);
-      fetch.fetchInto(info, target, function (success) {
-        callback(!success, basename);
+      createName(basename, function (root) {
+        var target = path.join(root, 'src');
+        fetch.fetchInto(info, target, function (success) {
+          callback(!success, path.basename(basename));
+        });
       });
     },
     
     detect: function (params, callback) {
-      packs.detect(params.path, function (pack, name) {
-        console.log(pack, name);
-        callback(null, [pack, name.slice(0, name.length - 1)]);
+      var target = path.join(appRoot, params.app, 'src');
+      packs.detect(target, function (pack, name) {
+        callback(null, [pack, name]);
+      });
+    },
+    
+    compile: function (params, callback) {
+      var root = path.join(appRoot, params.app);
+      
+      // TODO: use APIs
+      var args = ['-r', path.join(root, 'src'), path.join(root, 'slug')];
+      spawn('cp', args).on('exit', function () {
+        args = ['-rf', path.join(root, 'slug', '.git')];
+        spawn('rm', args).on('exit', function () {
+          packs.detect(path.join(appRoot, params.app, 'src'), function (pack, name) {
+            pack.compile(path.join(root, 'slug'), path.join(root, 'slug'), function (success) {
+              callback(!success, 'Installed');
+            }, function (line) {
+              callback(null, line);
+            });
+          });
+        });
       });
     },
     
@@ -76,7 +97,8 @@ db.connect(function () {
   obj.help = function (params, callback) {
     callback(null, {
       fetch: "Fetches `uri` into the local app store, optionally as `basename`.",
-      detect: "Detects the type of application located at `path`.",
+      detect: "Detects the type of application located at `app`.",
+      compile: "Compiles a slug for `app`.",
     });
   };
   
