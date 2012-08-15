@@ -21,9 +21,11 @@ function createName (name, callback) {
       createName(name + '-', callback);
     } else {
       fs.mkdir(appPath, function (err) {
-        callback(appPath);
+        fs.mkdir(path.join(appPath, 'cache'), function (err) {
+          callback(appPath);
+        });
       });
-    }
+    };
   });
 }
 
