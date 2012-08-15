@@ -77,16 +77,19 @@ db.connect(function () {
       var root = path.join(appRoot, params.app);
       
       // TODO: use APIs
-      var args = ['-r', path.join(root, 'src'), path.join(root, 'slug')];
-      spawn('cp', args).on('exit', function () {
-        args = ['-rf', path.join(root, 'slug', '.git')];
-        spawn('rm', args).on('exit', function () {
-          packs.detect(path.join(appRoot, params.app, 'src'), function (pack, name) {
-            // TODO: catch no pack matching
-            pack.compile(path.join(root, 'slug'), path.join(root, 'slug'), function (success) {
-              callback(!success, 'Installed');
-            }, function (line) {
-              callback(null, line);
+      var args = ['-rf', path.join(root, 'slug')];
+      spawn('rm', args).on('exit', function () {
+        args = ['-r', path.join(root, 'src'), path.join(root, 'slug')];
+        spawn('cp', args).on('exit', function () {
+          args = ['-rf', path.join(root, 'slug', '.git')];
+          spawn('rm', args).on('exit', function () {
+            packs.detect(path.join(appRoot, params.app, 'src'), function (pack, name) {
+              // TODO: catch no pack matching
+              pack.compile(path.join(root, 'slug'), path.join(root, 'slug'), function (success) {
+                callback(!success, 'Installed');
+              }, function (line) {
+                callback(null, line);
+              });
             });
           });
         });
