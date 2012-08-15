@@ -7,7 +7,7 @@ exports.detect = function (uri) {
     parts = uri.match(/^(.+?)(?:#([0-9a-f]+))?$/i);
     return {
       method: 'git',
-      basename: path.basename(parts[1], '.git'),
+      basename: path.basename(parts[1].replace(':', path.sep), '.git'),
       uri: parts[1],
       commit: parts[2]
     };
