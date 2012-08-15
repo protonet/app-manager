@@ -72,7 +72,10 @@ db.connect(function () {
   };
   
   obj.help = function (params, callback) {
-    callback(null, 'The only valid command is hello.');
+    callback(null, {
+      fetch: "Fetches `uri` into the local app store, optionally as `basename`.",
+      detect: "Detects the type of application located at `path`.",
+    });
   };
   
   rpc.start(obj);
