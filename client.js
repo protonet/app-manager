@@ -1,5 +1,6 @@
 var amqp   = require('amqp'),
     curses = require('ncurses'),
+    util   = require('util'),
     
     meid   = Math.round(Math.random()*1000000000),
     me     = 'app-console-' + String(meid),
@@ -120,7 +121,7 @@ conn.on('ready', function () {
     
     queue.subscribe(function (message) {
       var data = JSON.parse(message.data.toString('utf8'));
-      addLine('<<<', data['result'].toString());
+      addLine('<<<', util.inspect(data['result']));
     });
   });
   
@@ -142,8 +143,8 @@ conn.on('ready', function () {
 });
 
 function cleanup() {
-  curses.cleanup();
   process.exit(0);
+  curses.cleanup();
 }
 process.addListener('SIGINT',  cleanup);
 process.addListener('SIGKILL', cleanup);
