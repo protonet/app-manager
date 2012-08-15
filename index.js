@@ -61,7 +61,7 @@ db.connect(function () {
       createName(basename, function (root) {
         var target = path.join(root, 'src');
         fetch.fetchInto(info, target, function (success) {
-          callback(!success, path.basename(basename));
+          callback(!success, path.basename(root));
         });
       });
     },
@@ -82,6 +82,7 @@ db.connect(function () {
         args = ['-rf', path.join(root, 'slug', '.git')];
         spawn('rm', args).on('exit', function () {
           packs.detect(path.join(appRoot, params.app, 'src'), function (pack, name) {
+            // TODO: catch no pack matching
             pack.compile(path.join(root, 'slug'), path.join(root, 'slug'), function (success) {
               callback(!success, 'Installed');
             }, function (line) {

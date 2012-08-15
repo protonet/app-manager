@@ -16,8 +16,7 @@ exports.detect = function (uri) {
     return {
       method: 'unzip',
       basename: path.basename(uri, '.zip'),
-      uri: uri,
-      filter: path.join(path.basename(uri, '.zip'), '*')
+      uri: uri
     };
     
   } else {
@@ -52,9 +51,11 @@ exports.fetchInto = function (info, target, callback) {
     break;
     
   case 'unzip':
-    var args = [uri, '-d', target, info.filter];
-    spawn('unzip', opts).on('exit', function () {
-      callback(true);
+    fs.mkdir(target, function () {
+      var args = [info.uri, '-d', target];
+      spawn('unzip', args).on('exit', function () {
+        callback(true);
+      });
     });
     break;
     
