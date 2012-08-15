@@ -85,7 +85,7 @@ module.exports.prototype = {
     var buffer = '';
 
     this.runBin('bin/detect', [buildPath], function (code) {
-      callback(!code && buffer);
+      callback(!code && buffer.slice(0, buffer.length - 1));
     }, function (data) {
       buffer += data;
     });
