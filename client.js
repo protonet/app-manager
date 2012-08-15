@@ -67,7 +67,7 @@ exports.handleLine = function (line) {
 
 var buffer = '';
 scrollback.on('inputChar', function (c, i) {
-  if ((i === curses.keys.BACKSPACE || i === 127) && scrollback.curx > 0) {
+  if ((i === curses.keys.BACKSPACE || i === 127) && scrollback.curx > 4) {
     var prev_x = scrollback.curx-1;
     scrollback.delch(scrollback.height-1, prev_x);
     buffer = buffer.substring(0, prev_x-4) + buffer.substring(prev_x-4+1);
