@@ -53,6 +53,15 @@ db.connect(function () {
 
   // detect "path":"/home/danopia/Code/protonet/app-manager/store/apps/node-example"
   var obj = {
+    fetch: function (params, callback) {
+      var info = fetch.detect(params.uri);
+      var basename = params.basename || info.basename;
+      var target = path.join(appRoot, basename);
+      fetch.fetchInto(info, target, function (success) {
+        callback(!success, basename);
+      });
+    },
+    
     detect: function (params, callback) {
       packs.detect(params.path, function (pack, name) {
         console.log(pack, name);
