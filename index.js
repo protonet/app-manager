@@ -68,10 +68,7 @@ db.connect(function () {
         callback(null, [pack, name.slice(0, name.length - 1)]);
       });
     },
-  };
-  
-  obj.hello = function (params, callback) {
-    callback(null, 'Hello, world!');
+    
   };
   
   obj.help = function (params, callback) {
