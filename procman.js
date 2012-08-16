@@ -4,8 +4,10 @@ var path  = require('path'),
     httpd = require('./httpd');
 
 exports.startProc = function (app, proc, params, callback) {
-  var slug = app.name + '-' + proc + '-1';
-  var port = httpd.reservePort(slug);
+  var slug = app.name + '-' + proc;
+  var parts = httpd.reservePort(slug);
+  slug = parts[0];
+  var port = parts[1];
   
   var env = JSON.parse(JSON.stringify(app.config.env));
   env.APP_NAME = app.name;
