@@ -96,6 +96,16 @@ db.connect(function () {
       });
     },
     
+    config: function (params, callback) {
+      var target = path.join(appRoot, params.app, 'slug');
+      packs.detect(target, function (pack, name) {
+        // TODO: catch no pack matching
+        pack.release(target, function (config) {
+          callback(null, config);
+        });
+      });
+    },
+    
   };
   
   obj.help = function (params, callback) {
