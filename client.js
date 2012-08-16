@@ -105,7 +105,7 @@ scrollback.on('inputChar', function (c, i) {
     scrollback.cursor(scrollback.height-1, 4);
     scrollback.clrtoeol();
     scrollback.refresh();
-  } else if (i >= 32 && i <= 126 && scrollback.curx < scrollback.width-4) {
+  } else if (i >= 32 && i <= 126 && scrollback.curx < scrollback.width-1) {
     scrollback.echochar(i);
     buffer += c;
   } else {
