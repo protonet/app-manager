@@ -59,5 +59,5 @@ db.connect(function () {
   rpc.start(obj);
 });
 
-// install "uri":"git@heroku.com:simple-mist-848.git"
+// install "uri":"git@heroku.com:simple-mist-848.git","basename":"github-bridge"
 // install "uri":"/home/danopia/Code/protonet/app-manager/apps/hellojs.zip"
