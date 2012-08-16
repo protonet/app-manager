@@ -44,7 +44,24 @@ db.connect(function () {
         app.install(function (line) {
           callback(null, line);
         }, function (err) {
-          callback(err, "Installation complete");
+          if (app.config.addons.indexOf("shared-database:5mb") >= 0) {
+            callback(err, "Creating database");
+            
+            var crypto = require('crypto');
+            var password = crypto.createHash('sha1').update(crypto.randomBytes(16)).digest('hex');
+
+            // TODO: step()
+            db.conn.query("CREATE DATABASE " + app.name + ";").on('result', function () {
+              db.conn.query("GRANT ALL ON " + app.name + ".* TO '" + app.name + "'@'localhost' IDENTIFIED BY '" + password + "';").on('result', function () {
+                app.config.env.DATABASE_URL = "mysql://" + app.name + ":" + password + "@localhost/" + app.name;
+                app.saveConfig();
+                
+                callback(err, "Installation complete");
+              });
+            });
+          } else {
+            callback(err, "Installation complete");
+          };
         });
       });
     },
@@ -59,16 +76,28 @@ db.connect(function () {
   obj.help = function (params, callback) {
     callback(null, {
       install: "Fetches `uri` into the local app store, optionally as `basename`.",
+      run: "Spins off a `proc` instance from `app`.",
     });
   };
   
   rpc.start(obj);
 });
 
-// install "uri":"https://github.com/appelier/bigtuna.git"
 // install "uri":"https://github.com/danopia/bubblegum.git"
 // install "uri":"https://github.com/halorgium/mephisto.git"
 // install "uri":"https://github.com/TracksApp/tracks.git"
 // install "uri":"/home/danopia/Code/protonet/app-manager/apps/hellojs.zip"
 // install "uri":"git@heroku.com:simple-mist-848.git","basename":"github-bridge"
+// install "uri":"git@heroku.com:danopia.git"
+// install "uri":"git@heroku.com:duhousing.git"
 // install "uri":"git@github.com:protonet/homepage_new.git","basename":"homepage"
+
+// install "uri":"https://github.com/appelier/bigtuna.git"
+// run "app":"bigtuna","proc":"rake","args":"db:migrate"
+
+// install "uri":"https://github.com/TracksApp/tracks.git"
+// run "app":"tracks","proc":"rake","args":"db:migrate"
+
+
+// https://github.com/xlsuite/xlsuite.git
+// DB is weird

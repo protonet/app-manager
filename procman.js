@@ -18,7 +18,7 @@ exports.startProc = function (app, proc, params, callback) {
   env.STACK = "app-manager-0.0.1";
   env.URL = "http://localhost:7200/" + slug;
 
-  var command = app.config.procs[proc];
+  var command = app.config.procs[proc] || proc;
   command = command.replace("$PORT", env.PORT);
   command = command.replace("$RAILS_ENV", env.RAILS_ENV);
   if (params) command += " " + params;
