@@ -2,11 +2,15 @@ var path  = require('path'),
     fs    = require('fs'),
     spawn = require('child_process').spawn,
     yaml  = require('js-yaml'),
-    fetch = require('./fetch');
+    
+    fetch = require('./fetch'),
+    store = require('./store');
 
 module.exports = function () {};
 
 module.exports.maintainStore = function () {
+  module.exports.storePath = path.join(store.root, 'buildpacks');
+  
   var stock = require('./conf/buildpacks.json');
   module.exports.stock = [];
 
@@ -62,7 +66,8 @@ module.exports.prototype = {
     this.onDisk(function (exists) {
       if (exists) {
         if (self.sourceInfo.method != 'git') return;
-        
+
+        // TODO: handle commit freezes
         spawn('git', ['pull'], {cwd: self.path}).on('exit', function () {
           callback(true);
         });

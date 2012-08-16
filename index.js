@@ -2,32 +2,17 @@ var path  = require('path'),
     fs    = require('fs'),
     spawn = require('child_process').spawn,
     
+    store = require('./store'),
     db    = require('./db'),
     rpc   = require('./rpc'),
     httpd = require('./httpd'),
     packs = require('./buildpack'),
-    fetch = require('./fetch'),
+    packs = require('./app'),
+    fetch = require('./fetch');
 
-    storeRoot = path.join(path.dirname(module.filename), 'store'),
-    appRoot   = path.join(storeRoot, 'apps');
+store.root = path.join(path.dirname(module.filename), 'store');
 
-packs.storePath = path.join(storeRoot, 'buildpacks');
 packs.maintainStore();
-
-function createName (name, callback) {
-  var appPath = path.join(appRoot, name);
-  fs.exists(appPath, function (exists) {
-    if (exists) {
-      createName(name + '-', callback);
-    } else {
-      fs.mkdir(appPath, function (err) {
-        fs.mkdir(path.join(appPath, 'cache'), function (err) {
-          callback(appPath);
-        });
-      });
-    };
-  });
-}
 
 db.connect(function () {
   console.log('Database ready');
@@ -55,64 +40,20 @@ db.connect(function () {
 
   // detect "path":"/home/danopia/Code/protonet/app-manager/store/apps/node-example"
   var obj = {
-    fetch: function (params, callback) {
-      var info = fetch.detect(params.uri);
-      var basename = params.basename || info.basename;
-      createName(basename, function (root) {
-        var target = path.join(root, 'src');
-        fetch.fetchInto(info, target, function (success) {
-          callback(!success, path.basename(root));
+    install: function (params, callback) {
+      app.fromURI(params.uri, params.basename, function (app) {
+        app.install(function (line) {
+          callback(null, line);
+        }, function (err) {
+          callback(err, "Installation complete");
         });
       });
     },
-    
-    detect: function (params, callback) {
-      var target = path.join(appRoot, params.app, 'src');
-      packs.detect(target, function (pack, name) {
-        callback(null, [pack, name]);
-      });
-    },
-    
-    compile: function (params, callback) {
-      var root = path.join(appRoot, params.app);
-      
-      // TODO: use APIs and step()
-      var args = ['-rf', path.join(root, 'slug')];
-      spawn('rm', args).on('exit', function () {
-        args = ['-r', path.join(root, 'src'), path.join(root, 'slug')];
-        spawn('cp', args).on('exit', function () {
-          args = ['-rf', path.join(root, 'slug', '.git')];
-          spawn('rm', args).on('exit', function () {
-            packs.detect(path.join(appRoot, params.app, 'src'), function (pack, name) {
-              // TODO: catch no pack matching
-              pack.compile(path.join(root, 'slug'), path.join(root, 'cache'), function (success) {
-                callback(!success, 'Installed');
-              }, function (line) {
-                callback(null, line);
-              });
-            });
-          });
-        });
-      });
-    },
-    
-    config: function (params, callback) {
-      var target = path.join(appRoot, params.app, 'slug');
-      packs.detect(target, function (pack, name) {
-        // TODO: catch no pack matching
-        pack.release(target, function (config) {
-          callback(null, config);
-        });
-      });
-    },
-    
   };
   
   obj.help = function (params, callback) {
     callback(null, {
-      fetch: "Fetches `uri` into the local app store, optionally as `basename`.",
-      detect: "Detects the type of application located at `app`.",
-      compile: "Compiles a slug for `app`.",
+      install: "Fetches `uri` into the local app store, optionally as `basename`.",
     });
   };
   
