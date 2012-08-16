@@ -13,7 +13,9 @@ module.exports.maintainStore = function () {
   for (var i = 0; i < stock.length; i++) {
     var pack = module.exports.fromStock(stock[i]);
     module.exports.stock.push(pack);
-    pack.ensureLatest(function (success) {
+    // TODO: be more intelligent, have a last checked time, update at
+    // most once a day or so
+    /*pack.ensureLatest(function (success) {
       console.log('ensureLatest completed on', pack.path, '-', success);
     });//*/
   };
