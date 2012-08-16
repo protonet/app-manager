@@ -19,7 +19,8 @@ module.exports.maintainStore = function () {
     module.exports.stock.push(pack);
     // TODO: be more intelligent, have a last checked time, update at
     // most once a day or so
-    /*pack.ensureLatest(function (success) {
+    /*
+    pack.ensureLatest(function (success) {
       console.log('ensureLatest completed on', pack.path, '-', success);
     });//*/
   };

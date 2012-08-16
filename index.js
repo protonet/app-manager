@@ -7,7 +7,7 @@ var path  = require('path'),
     rpc   = require('./rpc'),
     httpd = require('./httpd'),
     packs = require('./buildpack'),
-    packs = require('./app'),
+    app   = require('./app'),
     fetch = require('./fetch');
 
 store.root = path.join(path.dirname(module.filename), 'store');
@@ -38,7 +38,6 @@ db.connect(function () {
     console.log(row);
   });*/
 
-  // detect "path":"/home/danopia/Code/protonet/app-manager/store/apps/node-example"
   var obj = {
     install: function (params, callback) {
       app.fromURI(params.uri, params.basename, function (app) {
@@ -60,20 +59,5 @@ db.connect(function () {
   rpc.start(obj);
 });
 
-//installFrom('git@heroku.com:simple-mist-848.git');
-
-/*
-installFrom('/home/danopia/Code/protonet/app-manager/apps/github-bridge.zip', function (slug) {
-installFrom('/home/danopia/Code/protonet/app-manager/apps/hellojs.zip', function (slug) {
-installFrom('/home/danopia/Code/protonet/app-manager/apps/hellojs2.zip', function (slug) {
-installFrom('/home/danopia/Code/protonet/app-manager/apps/jello.zip', function (slug) {
-  console.log('Phew! Done installing ' + slug + '. Now trying to start it...');
-  //var slug = 'node-example';
-  
-  startApp(slug, function (packager, port) {
-    console.log(packager.name + ' app ' + slug + ' is now running on http://localhost:7200/' + slug);
-  });
-});
-
-*/
-
+// install "uri":"git@heroku.com:simple-mist-848.git"
+// install "uri":"/home/danopia/Code/protonet/app-manager/apps/hellojs.zip"
