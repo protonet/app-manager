@@ -7,6 +7,8 @@ var path  = require('path'),
     fetch = require('./fetch');
 
 var App = function (name) {
+  this.name  = name;
+  
   this.root  = path.join(store.root, 'apps', name);
   
   this.conf  = path.join(this.root, 'config.json');

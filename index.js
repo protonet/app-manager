@@ -1,7 +1,7 @@
 var path  = require('path'),
     fs    = require('fs'),
-    spawn = require('child_process').spawn,
     
+    procman = require('./procman'),
     store = require('./store'),
     db    = require('./db'),
     rpc   = require('./rpc'),
@@ -48,6 +48,12 @@ db.connect(function () {
         });
       });
     },
+
+    run: function (params, callback) {
+      app.fromName(params.app, function (app) {
+        procman.startProc(app, params.proc || "web", params.args, callback);
+      });
+    },
   };
   
   obj.help = function (params, callback) {
@@ -59,5 +65,10 @@ db.connect(function () {
   rpc.start(obj);
 });
 
-// install "uri":"git@heroku.com:simple-mist-848.git","basename":"github-bridge"
+// install "uri":"https://github.com/appelier/bigtuna.git"
+// install "uri":"https://github.com/danopia/bubblegum.git"
+// install "uri":"https://github.com/halorgium/mephisto.git"
+// install "uri":"https://github.com/TracksApp/tracks.git"     
 // install "uri":"/home/danopia/Code/protonet/app-manager/apps/hellojs.zip"
+// install "uri":"git@heroku.com:simple-mist-848.git","basename":"github-bridge"
+// install "uri":"git@github.com:protonet/homepage_new.git","basename":"homepage"
