@@ -76,7 +76,7 @@ db.connect(function () {
     compile: function (params, callback) {
       var root = path.join(appRoot, params.app);
       
-      // TODO: use APIs
+      // TODO: use APIs and step()
       var args = ['-rf', path.join(root, 'slug')];
       spawn('rm', args).on('exit', function () {
         args = ['-r', path.join(root, 'src'), path.join(root, 'slug')];
@@ -85,7 +85,7 @@ db.connect(function () {
           spawn('rm', args).on('exit', function () {
             packs.detect(path.join(appRoot, params.app, 'src'), function (pack, name) {
               // TODO: catch no pack matching
-              pack.compile(path.join(root, 'slug'), path.join(root, 'slug'), function (success) {
+              pack.compile(path.join(root, 'slug'), path.join(root, 'cache'), function (success) {
                 callback(!success, 'Installed');
               }, function (line) {
                 callback(null, line);
