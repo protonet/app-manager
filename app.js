@@ -15,7 +15,7 @@ var App = function (name) {
   this.cache = path.join(this.root, 'cache');
 };
 
-module.exports.fromName = function (name, callback) {
+exports.fromName = function (name, callback) {
   var app = new App(name);
 
   fs.readFile(app.conf, 'utf8', function (err, data) {
@@ -34,7 +34,7 @@ module.exports.fromName = function (name, callback) {
   });
 };
 
-module.exports.fromURI = function (uri, basename, callback) {
+exports.fromURI = function (uri, basename, callback) {
   var info = fetch.detect(uri);
   var basename = basename || info.basename;
   
@@ -54,7 +54,7 @@ module.exports.fromURI = function (uri, basename, callback) {
   });
 };
 
-module.exports.prototype = {
+App.prototype = {
   detectPack: function (callback) {
     packs.detect(this.src, callback);
   },
