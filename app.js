@@ -83,7 +83,7 @@ App.prototype = {
     self.compile(lineCall, function (success) {
       if (!success) return callback("Compiliation failed");
       
-      self.initialConfig(function (config) {
+      self.defaultConfig(function (config) {
         self.config.addons = config.addons;
         self.config.env    = config.config_vars;
         self.config.procs  = config.default_process_types;
