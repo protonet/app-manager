@@ -13,9 +13,9 @@ module.exports.maintainStore = function () {
   for (var i = 0; i < stock.length; i++) {
     var pack = module.exports.fromStock(stock[i]);
     module.exports.stock.push(pack);
-    /*pack.ensureLatest(function (success) {
+    pack.ensureLatest(function (success) {
       console.log('ensureLatest completed on', pack.path, '-', success);
-    });*/
+    });//*/
   };
 };
 
