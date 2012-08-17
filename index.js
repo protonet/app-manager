@@ -53,7 +53,7 @@ db.connect(function () {
             // TODO: step()
             db.conn.query("CREATE DATABASE " + app.name + ";").on('result', function () {
               db.conn.query("GRANT ALL ON " + app.name + ".* TO '" + app.name + "'@'localhost' IDENTIFIED BY '" + password + "';").on('result', function () {
-                app.config.env.DATABASE_URL = "mysql://" + app.name + ":" + password + "@localhost/" + app.name;
+                app.config.env.DATABASE_URL = "mysql2://" + app.name + ":" + password + "@localhost/" + app.name;
                 app.saveConfig();
                 
                 callback(err, "Installation complete");
