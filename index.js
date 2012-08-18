@@ -1,18 +1,15 @@
 var path  = require('path'),
-    fs    = require('fs'),
     
     procman = require('./procman'),
     store = require('./store'),
     db    = require('./db'),
     rpc   = require('./rpc'),
     httpd = require('./httpd'),
-    packs = require('./buildpack'),
-    app   = require('./app'),
-    fetch = require('./fetch');
+    app   = require('./app');
 
 store.root = path.join(path.dirname(module.filename), 'store');
 
-packs.maintainStore();
+require('./buildpack').maintainStore();
 
 db.connect(function () {
   console.log('Database ready');
