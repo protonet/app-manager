@@ -2,3 +2,4 @@ store
 apps
 node_modules
 database.json
+conf/httpd.json

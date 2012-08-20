@@ -1,0 +1,5 @@
+{
+  "mainPort": 7199,
+  "basePort": 7200,
+  "baseName": "node.protonet.info"
+}

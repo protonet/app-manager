@@ -1,30 +1,35 @@
-var http = require('http');
+var http = require('http'),
 
-var ports = {};
-var slugs = {};
-var thisPort = 7200;
+    conf = require('./conf/httpd'),
 
-exports.reservePort = function (slug) {
-  var i = 1;
-  while (slugs[slug + '-' + i]) i++;
-  slug += '-' + i;
-  
-  slugs[slug] = (thisPort += 1);
-  ports[thisPort] = slug;
-  return [slug, thisPort];
+    ports = {},
+    apps  = {},
+    thisPort = conf.basePort;
+
+exports.reservePort = function (app, dyno) {
+  if (!apps[app.name])
+    apps[app.name] = {info: app, dynos: []};
+
+  thisPort++;
+  dyno.port = thisPort;
+  apps[app.name].dynos.push(dyno);
+  ports[thisPort] = app;
+  return thisPort;
 };
 
 var server = http.createServer(function (req, res) {
   //console.log(req);
   
-  var slug = req.headers.host.split('.')[0];
-  var port = slugs[slug];
+  var name = req.headers.host.split('.')[0];
+  var target = apps[name];
   console.log(req.method + ' ' + req.headers.host + req.url);
   
-  if (port) {
+  if (target) {
+    var dyno = target.dynos[Math.floor(Math.random() * target.dynos.length)];
+    
     var options = {
       hostname: 'localhost',
-      port: port,
+      port: dyno.port,
       method: req.method,
       path: req.url,
       headers: req.headers};
@@ -46,21 +51,22 @@ var server = http.createServer(function (req, res) {
     });
   } else if (req.url == '/') {
     res.writeHead(200, {'content-type': 'text/html'});
-    res.write('<!doctype html><html><head><title>App Manager</title></head><body>');
-    res.write('<h1>Running Processes</h1><ul>');
+    res.write('<!doctype html><html>');
+    res.write('<head><title>App Manager</title></head>');
+    res.write('<body><h1>Running Apps</h1><ul>');
     
-    Object.keys(ports).forEach(function (port) {
-      var slug = ports[port];
+    Object.keys(apps).forEach(function (name) {
+      var info = apps[name];
       
-      res.write('<li><a href="http://' + slug + '.apps.danopia.net/">' + slug + '</a></li>');
+      res.write('<li><a href="http://' + name + '.' + conf.baseName + '/">' + name + '</a> (' + info.dynos.length + ')</li>');
     });
     
     res.write('</ul></body></html>');
     res.end();
   } else {
     res.writeHead(404);
-    res.end('aint nuttin here');
+    res.end("ain't nuttin' here");
   }
 }).listen(80, function () {
-  console.log('Listening for HTTP traffic on port 80');
+  console.log('Listening for HTTP traffic on port 80, http://apps.' + conf.baseName + '/');
 })
