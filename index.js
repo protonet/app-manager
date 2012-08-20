@@ -1,6 +1,6 @@
 var path  = require('path'),
     
-    procman = require('./procman'),
+    dyno  = require('./dyno'),
     store = require('./store'),
     db    = require('./db'),
     rpc   = require('./rpc'),
@@ -65,7 +65,7 @@ db.connect(function () {
 
     run: function (params, callback) {
       app.fromName(params.app, function (app) {
-        procman.startProc(app, params.proc || "web", params.args, callback);
+        dyno.start(app, params.proc || "web", params.args, callback);
       });
     },
   };

@@ -6,14 +6,14 @@ var http = require('http'),
     apps  = {},
     thisPort = conf.basePort;
 
-exports.reservePort = function (app, dyno) {
-  if (!apps[app.name])
-    apps[app.name] = {info: app, dynos: []};
+exports.reservePort = function (dyno) {
+  if (!apps[dyno.app.name])
+    apps[dyno.app.name] = {info: dyno.app, dynos: []};
 
   thisPort++;
   dyno.port = thisPort;
-  apps[app.name].dynos.push(dyno);
-  ports[thisPort] = app;
+  apps[dyno.app.name].dynos.push(dyno);
+  ports[thisPort] = dyno;
   return thisPort;
 };
 

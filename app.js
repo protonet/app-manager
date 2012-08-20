@@ -8,6 +8,7 @@ var path  = require('path'),
 
 var App = function (name) {
   this.name  = name;
+  this.dynos = {};
   
   this.root  = path.join(store.root, 'apps', name);
   
