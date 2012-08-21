@@ -143,10 +143,8 @@ conn.on('ready', function () {
 });
 
 function cleanup() {
-  process.exit(0);
   curses.cleanup();
+  process.exit(0);
 }
 process.addListener('SIGINT',  cleanup);
-process.addListener('SIGKILL', cleanup);
 process.addListener('SIGTERM', cleanup);
-
