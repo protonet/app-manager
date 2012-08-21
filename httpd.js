@@ -37,18 +37,10 @@ var server = http.createServer(function (req, res) {
     var requ = http.request(options, function (resp) {
       console.log(resp.statusCode);
       res.writeHead(resp.statusCode, resp.headers);
-      resp.on('data', function (chunk) {
-        res.write(chunk);
-      }).on('end', function () {
-        res.end();
-      });
+      resp.pipe(res);
     });
     
-    req.on('data', function (chunk) {
-      requ.write(chunk);
-    }).on('end', function () {
-      requ.end();
-    });
+    req.pipe(requ);
   } else if (req.url == '/') {
     res.writeHead(200, {'content-type': 'text/html'});
     res.write('<!doctype html><html>');
