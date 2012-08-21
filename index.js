@@ -80,6 +80,25 @@ db.connect(function () {
   rpc.start(obj);
 });
 
+var kills = 0;
+function cleanup () {
+  kills++;
+  
+  if (kills > 2) {
+    console.log('Okay, fine.');
+    process.exit(255);
+  } else {
+    console.log('\rAttempting clean shutdown');
+    httpd.server.close();
+    dyno.killAll();
+    rpc.conn.end();
+    db.conn.end();
+    console.log("Hit C-c again if it didn't work.");
+  }
+}
+process.addListener('SIGINT',  cleanup); // C-c
+process.addListener('SIGTERM', cleanup); // kill
+
 // install "uri":"https://github.com/danopia/bubblegum.git"
 // install "uri":"https://github.com/halorgium/mephisto.git"
 // install "uri":"https://github.com/TracksApp/tracks.git"

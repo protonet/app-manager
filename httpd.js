@@ -17,7 +17,7 @@ exports.reservePort = function (dyno) {
   return thisPort;
 };
 
-var server = http.createServer(function (req, res) {
+exports.server = http.createServer(function (req, res) {
   //console.log(req);
   
   var name = (req.headers.host || '').split('.')[0];
@@ -56,9 +56,11 @@ var server = http.createServer(function (req, res) {
     res.write('</ul></body></html>');
     res.end();
   } else {
-    res.writeHead(404);
+    res.writeHead(404, {'content-type': 'text/plain'});
     res.end("ain't nuttin' here");
   }
-}).listen(80, function () {
+});
+
+exports.server.listen(80, function () {
   console.log('Listening for HTTP traffic on port 80, http://apps.' + conf.baseName + '/');
 })

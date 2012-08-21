@@ -3,6 +3,8 @@ var path  = require('path'),
 
     httpd = require('./httpd');
 
+exports.dynos = [];
+
 var Dyno = function (app, type) {
   var i = 1;
   if (!app.dynos[type]) app.dynos[type] = {};
@@ -14,6 +16,7 @@ var Dyno = function (app, type) {
   this.name = app + '[' + type + '.' + i + ']';
   
   app.dynos[type][i] = this;
+  exports.dynos.push(this);
 
   this.log('Created');
 };
@@ -71,4 +74,10 @@ exports.start = function (app, proc, params, callback) {
     httpd.reservePort(dyno);
   
   dyno.run(params, callback);
+};
+
+exports.killAll = function () {
+  exports.dynos.forEach(function (dyno) {
+    dyno.proc.kill('SIGTERM');
+  });
 };

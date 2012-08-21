@@ -142,9 +142,9 @@ conn.on('ready', function () {
   addLine('<->', 'Connected!');
 });
 
-function cleanup() {
+function cleanup () {
   curses.cleanup();
   process.exit(0);
 }
-process.addListener('SIGINT',  cleanup);
-process.addListener('SIGTERM', cleanup);
+process.addListener('SIGINT',  cleanup); // C-c
+process.addListener('SIGTERM', cleanup); // kill
