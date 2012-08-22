@@ -1,5 +1,5 @@
-store
-apps
+store/apps
+store/buildpacks
 node_modules
-database.json
 conf/httpd.json
+conf/database.json

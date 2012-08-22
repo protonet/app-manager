@@ -5,7 +5,9 @@ var path  = require('path'),
     db    = require('./db'),
     rpc   = require('./rpc'),
     httpd = require('./httpd'),
-    app   = require('./app');
+    app   = require('./app'),
+
+    mysql = require('./store/addons/mysql');
 
 store.root = path.join(path.dirname(module.filename), 'store');
 
@@ -43,19 +45,10 @@ db.connect(function () {
         }, function (err) {
           if (app.config.addons.indexOf("shared-database:5mb") >= 0) {
             callback(err, "Creating database");
-            
-            var crypto = require('crypto');
-            var password = crypto.createHash('sha1').update(crypto.randomBytes(16)).digest('hex');
-
-            // TODO: step()
-            db.conn.query("CREATE DATABASE " + app.name + ";").on('result', function () {
-              db.conn.query("GRANT ALL ON " + app.name + ".* TO '" + app.name + "'@'localhost' IDENTIFIED BY '" + password + "';").on('result', function () {
-                app.config.env.DATABASE_URL = "mysql2://" + app.name + ":" + password + "@localhost/" + app.name;
-                app.saveConfig();
-                
-                callback(err, "Installation complete");
-              });
+            mysql.install(app, function (err) {
+              callback(err, "Installation complete");
             });
+
           } else {
             callback(err, "Installation complete");
           };
