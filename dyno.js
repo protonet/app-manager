@@ -52,18 +52,23 @@ Dyno.prototype.run = function (argv, callback) {
   
   this.proc = spawn(this.command[0], this.command.slice(1), opts);
   
-  callback(null, this.name + ': ' + "Starting");
+  this.log('Starting');
+  var self = this;
   
   this.proc.on("exit", function () {
-    callback(null, this.name + ': ' + "App crashed");
+    self.log('Crashed');
   });
 
   this.proc.stdout.on("data", function (data) {
-    callback(null, this.name + ': ' + data);
+    data.trimEnd().split('\n').forEach(function (line) {
+      self.log(line);
+    });
   }).setEncoding("utf8");
   
   this.proc.stderr.on("data", function (data) {
-    callback(null, this.name + ': ' + data);
+    data.trimEnd().split('\n').forEach(function (line) {
+      self.log(line);
+    });
   }).setEncoding("utf8");
 }
 
