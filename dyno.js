@@ -60,13 +60,13 @@ Dyno.prototype.run = function (argv, callback) {
   });
 
   this.proc.stdout.on("data", function (data) {
-    data.trimEnd().split('\n').forEach(function (line) {
+    data.trimRight().split('\n').forEach(function (line) {
       self.log(line);
     });
   }).setEncoding("utf8");
   
   this.proc.stderr.on("data", function (data) {
-    data.trimEnd().split('\n').forEach(function (line) {
+    data.trimRight().split('\n').forEach(function (line) {
       self.log(line);
     });
   }).setEncoding("utf8");

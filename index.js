@@ -47,10 +47,14 @@ db.connect(function () {
             callback(err, "Creating database");
             mysql.install(app, function (err) {
               callback(err, "Installation complete");
+              dyno.start(app, "web", null, callback);
+              dyno.start(app, "web", null, callback);
             });
 
           } else {
             callback(err, "Installation complete");
+            dyno.start(app, "web", null, callback);
+            dyno.start(app, "web", null, callback);
           };
         });
       });
