@@ -96,6 +96,25 @@ App.prototype = {
     });
   },
 
+  upgrade: function (lineCall, callback) {
+    var self = this;
+    
+    spawn('git', ['pull']).on('exit', function () {
+      self.detectPack(function (pack) {
+        self.pack = pack;
+        self.compile(lineCall, function (success) {
+          if (!success) return callback("Compiliation failed");
+          
+          self.defaultConfig(function (config) {
+            self.config.env    = config.config_vars;
+            
+            self.saveConfig(callback);
+          });
+        });
+      });
+    });
+  },
+
   saveConfig: function (callback) {
     fs.writeFile(this.conf, JSON.stringify(this.config), callback);
   },

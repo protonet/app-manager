@@ -65,6 +65,18 @@ db.connect(function () {
         dyno.start(app, params.proc || "web", params.args, callback);
       });
     },
+
+    upgrade: function (params, callback) {
+      app.fromName(params.app, function (app) {
+        app.upgrade(function (line) {
+          callback(null, line);
+        }, function (err) {
+          callback(err, "Installation complete");
+          dyno.start(app, "web", null, callback);
+          dyno.start(app, "web", null, callback);
+        });
+      });
+    },
   };
   
   obj.help = function (params, callback) {
