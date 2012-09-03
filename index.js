@@ -41,8 +41,9 @@ db.connect(function () {
         app.install(function (line) {
           callback(null, line);
         }, function (err) {
+          callback(err, "Installation complete");
           app.installAddons(function () {
-            callback(err, "Installation complete");
+            callback(err, "Starting dynos");
             dyno.start(app, "web", null, callback);
             dyno.start(app, "web", null, callback);
           });

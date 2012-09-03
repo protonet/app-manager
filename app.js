@@ -188,12 +188,14 @@ App.prototype = {
     var addons = {mysql: mysql};
     
     // Get the desired addon
+    console.log("Installing", this.toInstall, '. . .');
     var addon = addons[this.toInstall.shift()];
     if (!addon) throw 'No such addon: ' + addon;
     
     // Ask it to install
     var self = this;
     addon.install(this, function (err) {
+      console.log("done.");
       self._installAddon(err);
     });
   }
