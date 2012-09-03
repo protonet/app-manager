@@ -57,10 +57,8 @@ exports.hookRpc = function (amqp) {
       resp.pipe(res);
     });
     
-    if (req.readable)
-      req.pipe(requ);
-    else
-      requ.end();
+    req.resume();
+    req.pipe(requ);
   });
 };
 
@@ -80,6 +78,7 @@ exports.server = http.createServer(function (req, res) {
   
     next_seq += 1;
     pending[next_seq] = [target, req, res];
+    req.pause();
     exports.amqp.publish('rpc.requests', {
       object: 'auth',
       method: 'check_session',
