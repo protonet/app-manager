@@ -8,7 +8,8 @@ exports.checkDB = function (name, callback) {
             name + "' AND `Host` = 'localhost' LIMIT 1;";
   
   db.conn.query(sql, function (err, rows) {
-    callback(!err);
+    console.log(err, rows);
+    callback(rows.length);
   });
 };
 
