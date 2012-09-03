@@ -3,7 +3,7 @@ var amqp = require('amqp');
 exports.start = function (object) {
   exports.object = object;
   
-  var conn = exports.conn = amqp.createConnection();
+  var conn = exports.conn = amqp.createConnection(null, {defaultExchangeName: 'rpc'});
 
   conn.on('ready', function () {
     require('./httpd').hookRpc(conn);
@@ -28,4 +28,3 @@ exports.start = function (object) {
     console.log('Connected to RabbitMQ');
   });
 };
-
