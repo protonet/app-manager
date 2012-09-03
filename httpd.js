@@ -1,6 +1,10 @@
 var http = require('http'),
+    util = require('util'),
 
     conf = require('./conf/httpd'),
+    
+    pending  = {},
+    next_seq = 0,
 
     ports = {},
     apps  = {},
@@ -17,20 +21,27 @@ exports.reservePort = function (dyno) {
   return thisPort;
 };
 
-exports.server = http.createServer(function (req, res) {
-  var host = req.headers['x-forwarded-host'] || req.headers.host || '';
-  var name = host.split('.')[0];
-  var target = apps[name];
-  console.log(req.method, host, req.url);
-  
-  var cookies = {};
-  req.headers.cookie && req.headers.cookie.split(';').forEach(function (cookie) {
-    var parts = cookie.split('=');
-    cookies[parts[0].trim()] = (parts[1] || '').trim();
-  });
-  var session = cookies[conf.cookie];
-  
-  if (target) {
+exports.hookRpc = function (amqp) {
+  exports.amqp     = amqp;
+  exports.queue    = amqp.queue("rpc.responses");//app-manager-http-proxy");
+  exports.exchange = amqp.exchange("rpc");
+
+  //exports.queue.bind(exports.exchange, 'rpc.responses');
+  exports.queue.subscribeJSON(function(message) {
+    message = JSON.parse(message.data);
+    sys.puts(message.action + " verification queue message: " + util.inspect(message));
+    
+    var data = pending[message.seq];
+    if (!data) return;
+    pending[message.seq] = undefined;
+    
+    var target = data[0];
+    var req = data[1];
+    var res = data[2];
+    
+    req.headers['X-User-ID'] = message.user_id;
+    req.headers['X-Stranger-ID'] = message.stranger_id;
+    
     var dyno = target.dynos[Math.floor(Math.random() * target.dynos.length)];
     
     var options = {
@@ -46,6 +57,33 @@ exports.server = http.createServer(function (req, res) {
     });
     
     req.pipe(requ);
+  });
+};
+
+exports.server = http.createServer(function (req, res) {
+  var host = req.headers['x-forwarded-host'] || req.headers.host || '';
+  var name = host.split('.')[0];
+  var target = apps[name];
+  console.log(req.method, host, req.url);
+  
+  if (target) {
+    var cookies = {};
+    req.headers.cookie && req.headers.cookie.split(';').forEach(function (cookie) {
+      var parts = cookie.split('=');
+      cookies[parts[0].trim()] = (parts[1] || '').trim();
+    });
+    var session = cookies[conf.cookie];
+  
+    next_seq += 1;
+    pending[next_seq] = [target, req, res];
+    exchange.publish('rpc.requests', {
+      object: 'auth',
+      method: 'check_session',
+      params: {cookie: session},
+      seq: next_seq
+    });
+    sys.puts('Published RPC call');
+
   } else if (req.url == '/') {
     res.writeHead(200, {'content-type': 'text/html'});
     res.write('<!doctype html><html>');
