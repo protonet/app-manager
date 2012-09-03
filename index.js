@@ -7,7 +7,7 @@ var path  = require('path'),
     httpd = require('./httpd'),
     app   = require('./app'),
 
-    mysql = require('./store/addons/mysql');
+    mysql = require('./addons/mysql');
 
 store.root = path.join(path.dirname(module.filename), 'store');
 

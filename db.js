@@ -16,7 +16,8 @@ exports.connect = function (callback) {
         callback && callback();
       //});
     }, function () {
-      exports.migrate(function () {
+      exports.migrate(function (err) {
+        if (err) console.log(err);
         callback && callback();
       });
     });
@@ -79,9 +80,13 @@ exports.migrate = function (callback) {
       if (err) throw err;
       exports.conn.query('GRANT ALL ON `app-manager`.* TO "app-manager"@"localhost"', this);
     },
-    function (err) {
+    /*function (err) {
       if (err) throw err;
       exports.conn.changeUser({database: 'app-manager'}, this);
+    },*/
+    function (err) {
+      if (err) throw err;
+      exports.conn.query('CREATE TABLE `app-manager`.`addons` (`id` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(64) NOT NULL, `label` VARCHAR(128) NOT NULL, `manifest_json` TEXT NOT NULL, `config_json` TEXT NOT NULL, `source_uri` VARCHAR(512) NULL, `created_at` DATETIME NOT NULL, `installed_at` DATETIME NULL, PRIMARY KEY (`id`), UNIQUE INDEX `name_UNIQUE` (`name` ASC));', this);
     },
     function (err) {
       if (err) throw err;
@@ -89,7 +94,11 @@ exports.migrate = function (callback) {
     },
     function (err) {
       if (err) throw err;
-      exports.conn.query('CREATE TABLE `app-manager`.`log` (`id` INT NOT NULL AUTO_INCREMENT, `timestamp` DATETIME NOT NULL, `app_id` INT NOT NULL, `state` VARCHAR(16) NOT NULL, `message` TEXT NULL, `due_to` VARCHAR(255) NULL, PRIMARY KEY (`id`), INDEX `fk_log_app` (`app_id` ASC), CONSTRAINT `fk_log_app` FOREIGN KEY (`app_id`) REFERENCES `app-manager`.`apps` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT);', this);
+      exports.conn.query('CREATE TABLE `app-manager`.`app_addons` (`id` INT NOT NULL AUTO_INCREMENT, `app_id` INT NOT NULL, `addon_id` INT NOT NULL, `state` VARCHAR(16) NOT NULL, `created_at` DATETIME NOT NULL, PRIMARY KEY (`id`), INDEX `fk_app_addon_app` (`app_id` ASC), CONSTRAINT `fk_app_addon_app` FOREIGN KEY (`app_id`) REFERENCES `app-manager`.`apps` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT, INDEX `fk_app_addon_addon` (`addon_id` ASC), CONSTRAINT `fk_app_addon_addon` FOREIGN KEY (`addon_id`) REFERENCES `app-manager`.`addons` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT);', this);
+    },
+    function (err) {
+      if (err) throw err;
+      exports.conn.query('CREATE TABLE `app-manager`.`log` (`id` INT NOT NULL AUTO_INCREMENT, `timestamp` DATETIME NOT NULL, `app_id` INT NOT NULL, `addon_id` INT, `state` VARCHAR(16) NOT NULL, `message` TEXT NULL, `due_to` VARCHAR(255) NULL, PRIMARY KEY (`id`), INDEX `fk_log_app` (`app_id` ASC), CONSTRAINT `fk_log_app` FOREIGN KEY (`app_id`) REFERENCES `app-manager`.`apps` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT, INDEX `fk_log_addon` (`addon_id` ASC), CONSTRAINT `fk_log_addon` FOREIGN KEY (`addon_id`) REFERENCES `app-manager`.`addons` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT);', this);
     },
     callback
   );

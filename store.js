@@ -12,4 +12,4 @@ exports.createName = function (type, name, callback) {
       });
     };
   });
-}
+};

@@ -106,7 +106,8 @@ App.prototype = {
           if (!success) return callback("Compiliation failed");
           
           self.defaultConfig(function (config) {
-            self.config.env    = config.config_vars;
+            // TODO: merge variables
+            //self.config.env    = config.config_vars;
             
             self.saveConfig(callback);
           });
