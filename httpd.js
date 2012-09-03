@@ -28,6 +28,7 @@ exports.hookRpc = function (amqp) {
   
   exports.queue.subscribeJSON(function(message) {
     message = JSON.parse(message.data);
+    console.log('Got response');
     
     var data = pending[message.seq];
     if (!data) return;
@@ -40,8 +41,7 @@ exports.hookRpc = function (amqp) {
     req.headers['x-user-id'] = message.result.user_id || -1;
     req.headers['x-stranger-id'] = message.result.stranger_id || -1;
     
-    req.headers.host = req.headers['x-forwarded-host'];
-    req.headers['x-forwarded-host'] = undefined;
+    req.headers['host'] = req.headers['x-forwarded-host'];
     
     var dyno = target.dynos[Math.floor(Math.random() * target.dynos.length)];
     
@@ -58,7 +58,13 @@ exports.hookRpc = function (amqp) {
     });
     
     req.resume();
-    req.pipe(requ);
+    requ.write(req.buffer);
+    req.removeAllListeners('data');
+
+    if (req.readable)
+      req.pipe(requ);
+    else
+      requ.end();
   });
 };
 
@@ -78,7 +84,6 @@ exports.server = http.createServer(function (req, res) {
   
     next_seq += 1;
     pending[next_seq] = [target, req, res];
-    req.pause();
     exports.amqp.publish('rpc.requests', {
       object: 'auth',
       method: 'check_session',
@@ -86,6 +91,15 @@ exports.server = http.createServer(function (req, res) {
       seq: next_seq
     });
     console.log('sent session verification request');
+
+    req.pause();
+    req.buffer = new Buffer(0);
+    req.on('data', function (buff) {
+      var nbuff = new Buffer(req.buffer.length + buff.length);
+      req.buffer.copy(nbuff);
+      buff.copy(nbuff, req.buffer.length);
+      req.buffer = nbuff;
+    });
 
   } else if (req.url == '/') {
     res.writeHead(200, {'content-type': 'text/html'});
