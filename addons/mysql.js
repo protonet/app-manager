@@ -53,9 +53,9 @@ exports.install = function (app, callback) {
 
   exports.checkDB(app.name, function (user) {
     if (user)
-      exports.deleteDB(app.name, create);
+      exports.deleteDB(app.name, exports.create);
     else
-      create();
+      exports.create();
   });
 };
 
