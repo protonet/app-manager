@@ -1,5 +1,4 @@
 var http = require('http'),
-    util = require('util'),
 
     conf = require('./conf/httpd'),
     
@@ -29,7 +28,7 @@ exports.hookRpc = function (amqp) {
   //exports.queue.bind(exports.exchange, 'rpc.responses');
   exports.queue.subscribeJSON(function(message) {
     message = JSON.parse(message.data);
-    sys.puts(message.action + " verification queue message: " + util.inspect(message));
+    console.log('verification queue message:', message);
     
     var data = pending[message.seq];
     if (!data) return;
@@ -82,7 +81,7 @@ exports.server = http.createServer(function (req, res) {
       params: {cookie: session},
       seq: next_seq
     });
-    sys.puts('Published RPC call');
+    console.log('Published RPC call');
 
   } else if (req.url == '/') {
     res.writeHead(200, {'content-type': 'text/html'});
