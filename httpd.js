@@ -75,7 +75,7 @@ exports.server = http.createServer(function (req, res) {
   
     next_seq += 1;
     pending[next_seq] = [target, req, res];
-    exports.exchange.publish('rpc.requests', {
+    exports.exchange.publish('requests', {
       object: 'auth',
       method: 'check_session',
       params: {cookie: session},
