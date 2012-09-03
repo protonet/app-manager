@@ -22,10 +22,11 @@ exports.reservePort = function (dyno) {
 
 exports.hookRpc = function (amqp) {
   exports.amqp     = amqp;
-  exports.queue    = amqp.queue("rpc.responses");//app-manager-http-proxy");
-  exports.exchange = amqp.exchange("rpc");
-
-  //exports.queue.bind(exports.exchange, 'rpc.responses');
+  exports.queue    = amqp.queue('app-manager-http-proxy');
+  exports.exchange = amqp.exchange('rpc', function (exchange) {
+    exports.queue.bind(exports.exchange, 'rpc.responses');
+  });
+  
   exports.queue.subscribeJSON(function(message) {
     message = JSON.parse(message.data);
     console.log('verification queue message:', message);
