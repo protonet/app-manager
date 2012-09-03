@@ -43,8 +43,7 @@ db.connect(function () {
         }, function (err) {
           callback(err, "Installation complete");
           app.installAddons(function () {
-            callback(err, "Starting dynos");
-            dyno.start(app, "web", null, callback);
+            callback(err, "Starting 1 dyno");
             dyno.start(app, "web", null, callback);
           });
         });

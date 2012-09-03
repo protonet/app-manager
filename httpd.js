@@ -20,9 +20,10 @@ exports.reservePort = function (dyno) {
 exports.server = http.createServer(function (req, res) {
   //console.log(req);
   
-  var name = (req.headers.host || req.headers['X-Forwarded-Host'] || '').split('.')[0];
+  var host = req.headers['X-Forwarded-Host'] || req.headers.host || '';
+  var name = host.split('.')[0];
   var target = apps[name];
-  console.log(req.method + ' ' + req.headers.host + req.url);
+  console.log(req.method, host, req.url);
   
   if (target) {
     var dyno = target.dynos[Math.floor(Math.random() * target.dynos.length)];
