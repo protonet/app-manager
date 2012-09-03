@@ -23,6 +23,13 @@ exports.server = http.createServer(function (req, res) {
   var target = apps[name];
   console.log(req.method, host, req.url);
   
+  var cookies = {};
+  req.headers.cookie && req.headers.cookie.split(';').forEach(function (cookie) {
+    var parts = cookie.split('=');
+    cookies[parts[0].trim()] = (parts[1] || '').trim();
+  });
+  var session = cookies[conf.cookie];
+  
   if (target) {
     var dyno = target.dynos[Math.floor(Math.random() * target.dynos.length)];
     
@@ -34,7 +41,6 @@ exports.server = http.createServer(function (req, res) {
       headers: req.headers};
     
     var requ = http.request(options, function (resp) {
-      console.log(resp.statusCode);
       res.writeHead(resp.statusCode, resp.headers);
       resp.pipe(res);
     });

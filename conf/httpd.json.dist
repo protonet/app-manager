@@ -1,5 +1,7 @@
 {
   "mainPort": 7199,
   "basePort": 7200,
-  "baseName": "node.protonet.info"
+  "baseName": "node.protonet.info",
+  
+  "cookie": "_rails_dashboard_session"
 }
