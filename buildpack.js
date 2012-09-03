@@ -58,14 +58,14 @@ module.exports.detect = function (buildPath, callback, stack) {
 
 module.exports.prototype = {
   onDisk: function (callback) {
-    fs.exists(this.path, callback);
+    fs.stat(this.path, callback);
   },
 
   ensureLatest: function (callback) {
     var self = this;
     
-    this.onDisk(function (exists) {
-      if (exists) {
+    this.onDisk(function (err, stat) {
+      if (stat) {
         if (self.sourceInfo.method != 'git') return;
 
         // TODO: handle commit freezes
