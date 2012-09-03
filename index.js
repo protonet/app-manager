@@ -5,9 +5,7 @@ var path  = require('path'),
     db    = require('./db'),
     rpc   = require('./rpc'),
     httpd = require('./httpd'),
-    app   = require('./app'),
-
-    mysql = require('./addons/mysql');
+    app   = require('./app');
 
 store.root = path.join(path.dirname(module.filename), 'store');
 
@@ -43,19 +41,11 @@ db.connect(function () {
         app.install(function (line) {
           callback(null, line);
         }, function (err) {
-          if (app.config.addons.indexOf("shared-database:5mb") >= 0) {
-            callback(err, "Creating database");
-            mysql.install(app, function (err) {
-              callback(err, "Installation complete");
-              dyno.start(app, "web", null, callback);
-              dyno.start(app, "web", null, callback);
-            });
-
-          } else {
+          app.installAddons(function () {
             callback(err, "Installation complete");
             dyno.start(app, "web", null, callback);
             dyno.start(app, "web", null, callback);
-          };
+          });
         });
       });
     },
@@ -74,6 +64,15 @@ db.connect(function () {
           callback(err, "Installation complete");
           dyno.start(app, "web", null, callback);
           dyno.start(app, "web", null, callback);
+        });
+      });
+    },
+
+    manifest: function (params, callback) {
+      app.fromName(params.app, function (app) {
+        app.readManifest(function (manifest) {
+          app.manifest = manifest;
+          callback(null, manifest);
         });
       });
     },

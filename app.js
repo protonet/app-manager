@@ -4,7 +4,8 @@ var path  = require('path'),
     
     packs = require('./buildpack'),
     store = require('./store'),
-    fetch = require('./fetch');
+    fetch = require('./fetch'),
+    mysql = require('./addons/mysql');
 
 var App = function (name) {
   this.name  = name;
@@ -21,19 +22,23 @@ var App = function (name) {
 exports.fromName = function (name, callback) {
   var app = new App(name);
 
-  fs.readFile(app.conf, 'utf8', function (err, data) {
-    if (data) {
-      app.config = JSON.parse(data);
-      callback(app);
-    } else {
-      app.detectPack(function (pack, name) {
-        app.pack = pack;
-        app.config = {type: name}; // TODO: add pack path
-        app.saveConfig(function () {
-          callback(app);
+  app.readManifest(function (manifest) {
+    app.manifest = manifest;
+    
+    fs.readFile(app.conf, 'utf8', function (err, data) {
+      if (data) {
+        app.config = JSON.parse(data);
+        callback(app);
+      } else {
+        app.detectPack(function (pack, name) {
+          app.pack = pack;
+          app.config = {type: name}; // TODO: add pack path
+          app.saveConfig(function () {
+            callback(app);
+          });
         });
-      });
-    };
+      };
+    });
   });
 };
 
@@ -116,7 +121,80 @@ App.prototype = {
     });
   },
 
+  readManifest: function (callback) {
+    var file = path.join(this.src, 'manifest.json');
+    fs.readFile(file, 'utf8', function (err, data) {
+      if (err) {
+        console.log(err);
+        callback(false);
+      } else {
+        var json = JSON.parse(data);
+        console.log(json);
+        callback(json);
+      };
+    });
+  },
+
   saveConfig: function (callback) {
     fs.writeFile(this.conf, JSON.stringify(this.config), callback);
   },
+  
+  installAddons: function (callback) {
+    this.toInstall = [];
+    this.addonCall = callback;
+    
+    // Gather heroku-style addons
+    if (this.config && this.config.addons) {
+      for (var i = 0; i < this.config.addons.length; i++) {
+        var addon = this.config.addons[i];
+        
+        if (addon == 'shared-database:5mb')
+          addon = 'mysql';
+        
+        if (this.toInstall.indexOf(addon) < 0)
+          this.toInstall.push(addon);
+      };
+    };
+    
+    // Gather native addons
+    if (this.manifest && this.manifest.addons) {
+      for (var i = 0; i < this.config.addons.length; i++) {
+        var addon = this.config.addons[i];
+        
+        if (this.toInstall.indexOf(addon) < 0)
+          this.toInstall.push(addon);
+      };
+    };
+    
+    // Gather DB addon
+    if (this.manifest && this.manifest.database) {
+      var addon = this.manifest.database;
+      
+      if (this.toInstall.indexOf(addon) < 0)
+        this.toInstall.push(addon);
+    };
+    
+    // Start the installation chain
+    this._installAddon();
+  },
+  
+  // Recursively install addons
+  _installAddon: function (err) {
+    // Anything to do here?
+    if (this.toInstall.length == 0)
+      return this.addonCall(); // Nothing to do here
+    
+    // Map of addon names to handlers
+    var addons = {mysql: mysql};
+    
+    // Get the desired addon
+    var addon = addons[this.toInstall.shift()];
+    if (!addon) throw 'No such addon: ' + addon;
+    
+    // Ask it to install
+    var self = this;
+    addon.install(this, function (err) {
+      self._installAddon(err);
+    });
+  }
 };

@@ -7,10 +7,7 @@ exports.checkDB = function (name, callback) {
   var sql = "SELECT * FROM `mysql`.`user` WHERE `User` = 'app-" +
             name + "' AND `Host` = 'localhost' LIMIT 1;";
   
-  db.conn.query(sql).on('result', function (a,b,c) {
-    console.log(a,b,c);
-    callback();
-  });
+  db.conn.query(sql).on('result', callback);
 };
 
 exports.createDB = function (name, password, callback) {
@@ -20,21 +17,17 @@ exports.createDB = function (name, password, callback) {
                   password + "';";
   
   db.conn.query( createSql).on('result', function () {
-    db.conn.query(grantSql).on('result', function () {
-      callback();
-    });
+    db.conn.query(grantSql).on('result', callback);
   });
 };
 
-exports.deleteDB = function (name, password, callback) {
+exports.deleteDB = function (name, callback) {
   var dropDbSql   = "DROP DATABASE `app-" + name + "`;",
       dropUserSql = "DROP USER 'app-" + name +
                     "'@'localhost';";
   
   db.conn.query(dropUserSql).on('result', function () {
-    db.conn.query(dropDbSql).on('result', function () {
-      callback();
-    });
+    db.conn.query(dropDbSql).on('result', callback);
   });
 };
 
@@ -48,13 +41,21 @@ exports.genPassword = function () {
 
 exports.install = function (app, callback) {
   var password = exports.genPassword();
+  
+  var create = function () {
+    exports.createDB(app.name, password, function () {
+      app.config.env.DATABASE_URL = "mysql2://app-" + app.name + ":" + password + "@" + exports.server + "/app-" + app.name;
+      app.saveConfig();
+      
+      callback(null);
+    });
+  };
 
-  // TODO: step()
-  exports.createDB(app.name, password, function () {
-    app.config.env.DATABASE_URL = "mysql2://" + app.name + ":" + password + "@" + server + "/" + app.name;
-    app.saveConfig();
-    
-    callback(null);
+  exports.checkDB(app.name, function (user) {
+    if (user)
+      exports.deleteDB(app.name, create);
+    else
+      create();
   });
 };
 
