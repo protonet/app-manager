@@ -61,6 +61,6 @@ exports.server = http.createServer(function (req, res) {
   }
 });
 
-exports.server.listen(80, function () {
-  console.log('Listening for HTTP traffic on port 80, http://apps.' + conf.baseName + '/');
+exports.server.listen(thisPort, function () {
+  console.log('Listening for HTTP traffic on port ' + thisPort + ', http://apps.' + conf.baseName + ':' + thisPort + '/');
 })
