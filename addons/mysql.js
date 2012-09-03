@@ -7,7 +7,9 @@ exports.checkDB = function (name, callback) {
   var sql = "SELECT * FROM `mysql`.`user` WHERE `User` = 'app-" +
             name + "' AND `Host` = 'localhost' LIMIT 1;";
   
-  db.conn.query(sql).on('result', callback);
+  db.conn.query(sql, function (err, rows) {
+    callback(!err);
+  });
 };
 
 exports.createDB = function (name, password, callback) {
@@ -53,9 +55,9 @@ exports.install = function (app, callback) {
 
   exports.checkDB(app.name, function (user) {
     if (user)
-      exports.deleteDB(app.name, exports.create);
+      exports.deleteDB(app.name, create);
     else
-      exports.create();
+      create();
   });
 };
 
