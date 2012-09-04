@@ -116,9 +116,8 @@ scrollback.on('inputChar', function (c, i) {
 addLine('<->', 'Connecting to RabbitMQ');
 
 conn.on('ready', function () {
-  conn.queue('rpc.' + me, function (queue) {
-    queue.bind('#');
-    
+	var exchange = conn.exchange('app-manager');
+  conn.queue(me, function (queue) {
     queue.subscribe(function (message) {
       var data = JSON.parse(message.data.toString('utf8'));
       addLine('<<<', util.inspect(data['result']));
@@ -133,7 +132,7 @@ conn.on('ready', function () {
         method: match[1],
         params: JSON.parse('{' + (match[2] || '') + '}')
       };
-      conn.publish('rpc.app-manager', JSON.stringify(data));
+      exchange.publish('rpc', JSON.stringify(data));
     } catch (err) {
       addLine('!!!', 'Error');
     }

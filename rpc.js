@@ -8,8 +8,9 @@ exports.start = function (object) {
   conn.on('ready', function () {
     require('./httpd').hookRpc(conn);
     
-    conn.queue('rpc.app-manager', function (queue) {
-      queue.bind('#');
+		exports.exchange = conn.exchange('app-manager');
+    conn.queue('app-manager-rpc', function (queue) {
+      queue.bind('app-manager', 'rpc');
       
       queue.subscribe(function (message) {
         var data = JSON.parse(message.data.toString('utf8'));
@@ -20,7 +21,7 @@ exports.start = function (object) {
           var resp = JSON.parse(JSON.stringify(data));
           resp.error = err;
           resp.result = res;
-          conn.publish('rpc.' + data.queue, JSON.stringify(resp));
+          conn.publish(data.queue, JSON.stringify(resp));
         });
       });
     });
