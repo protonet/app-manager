@@ -13,7 +13,13 @@ exports.start = function (object) {
       queue.bind('app-manager', 'rpc');
       
       queue.subscribe(function (message) {
-        var data = JSON.parse(message.data.toString('utf8'));
+        var text = message.data.toString('utf8');
+        try {
+          var data = JSON.parse(text);
+        } catch (err) {
+          return console.log('Encountered', err, 'while parsing received JSON:', text);
+        }
+        
         console.log(data);
         var meth = object[data.method];
         meth && meth(data.params, function (err, res) {
