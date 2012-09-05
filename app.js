@@ -181,8 +181,12 @@ App.prototype = {
   // Recursively install addons
   _installAddon: function (err) {
     // Anything to do here?
-    if (this.toInstall.length == 0)
-      return this.addonCall(); // Nothing to do here
+    var self = this;
+    if (this.toInstall.length == 0) {
+      spawn('ruby', ['migrate.rb'], {cwd: this.slug, env: this.config.env}).on('exit', function () {
+        return self.addonCall(); // Nothing to do here
+      })
+    };
     
     // Map of addon names to handlers
     var addons = {mysql: mysql};
