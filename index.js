@@ -39,12 +39,14 @@ db.connect(function () {
     install: function (params, callback) {
       app.fromURI(params.uri, params.basename, function (app) {
         app.install(function (line) {
-          callback(null, line);
+          callback('partial', line);
         }, function (err) {
-          callback(err, "Installation complete");
+          callback('partial', "Installation complete");
           app.installAddons(function () {
-            callback(err, "Starting 1 dyno");
-            dyno.start(app, "web", null, callback);
+            callback(err, "Starting a dyno");
+            dyno.start(app, "web", null, function () {
+              callback(err, "Application online");
+            });
           });
         });
       });
