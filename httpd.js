@@ -22,49 +22,52 @@ exports.reservePort = function (dyno) {
 
 exports.hookRpc = function (amqp) {
   exports.amqp     = amqp;
-  exports.queue    = amqp.queue('app-manager-http-proxy', function () {
-    exports.queue.bind('rpc', 'rpc.responses');
-  });
-  
-  exports.queue.subscribeJSON(function(message) {
-    message = JSON.parse(message.data);
-    console.log('Got response');
-    
-    var data = pending[message.seq];
-    if (!data) return;
-    pending[message.seq] = undefined;
-    
-    var target = data[0];
-    var req = data[1];
-    var res = data[2];
-    
-    req.headers['x-user-id'] = message.result.user_id || -1;
-    req.headers['x-stranger-id'] = message.result.stranger_id || -1;
-    
-    req.headers['host'] = req.headers['x-forwarded-host'];
-    
-    var dyno = target.dynos[Math.floor(Math.random() * target.dynos.length)];
-    
-    var options = {
-      hostname: 'localhost',
-      port: dyno.port,
-      method: req.method,
-      path: req.url,
-      headers: req.headers};
-    
-    var requ = http.request(options, function (resp) {
-      res.writeHead(resp.statusCode, resp.headers);
-      resp.pipe(res);
+  exports.exchange = amqp.exchange('rpc');
+  exports.exchange.on('open', function () {
+    exports.queue    = amqp.queue('app-manager-http-proxy', function () {
+      exports.queue.bind('rpc', 'rpc.responses');
     });
     
-    req.resume();
-    requ.write(req.buffer);
-    req.removeAllListeners('data');
+    exports.queue.subscribeJSON(function(message) {
+      message = JSON.parse(message.data);
+      console.log('Got response');
+      
+      var data = pending[message.seq];
+      if (!data) return;
+      pending[message.seq] = undefined;
+      
+      var target = data[0];
+      var req = data[1];
+      var res = data[2];
+      
+      req.headers['x-user-id'] = message.result.user_id || -1;
+      req.headers['x-stranger-id'] = message.result.stranger_id || -1;
+      
+      req.headers['host'] = req.headers['x-forwarded-host'];
+      
+      var dyno = target.dynos[Math.floor(Math.random() * target.dynos.length)];
+      
+      var options = {
+        hostname: 'localhost',
+        port: dyno.port,
+        method: req.method,
+        path: req.url,
+        headers: req.headers};
+      
+      var requ = http.request(options, function (resp) {
+        res.writeHead(resp.statusCode, resp.headers);
+        resp.pipe(res);
+      });
+      
+      req.resume();
+      requ.write(req.buffer);
+      req.removeAllListeners('data');
 
-    if (req.readable)
-      req.pipe(requ);
-    else
-      requ.end();
+      if (req.readable)
+        req.pipe(requ);
+      else
+        requ.end();
+    });
   });
 };
 
