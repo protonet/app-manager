@@ -7,7 +7,7 @@ var http = require('http'),
 
     ports = {},
     apps  = {},
-    thisPort = conf.basePort;
+    thisPort = process.env.PORT || conf.basePort;
 
 exports.reservePort = function (dyno) {
   if (!apps[dyno.app.name])
