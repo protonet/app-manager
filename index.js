@@ -109,6 +109,12 @@ function cleanup () {
 process.addListener('SIGINT',  cleanup); // C-c
 process.addListener('SIGTERM', cleanup); // kill
 
+if (process.argv[2] == 'daemon') {
+  var pidfile = path.join(path.dirname(module.filename), '..', 'tmp', 'pids', 'app-manager_' + httpd.port + '.pid')
+  require('fs').writeFile(pidfile, process.pid);
+  process.send(true);
+};
+
 // install "uri":"https://github.com/danopia/bubblegum.git"
 // install "uri":"https://github.com/halorgium/mephisto.git"
 // install "uri":"https://github.com/TracksApp/tracks.git"
