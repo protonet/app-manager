@@ -87,7 +87,8 @@ module.exports.prototype = {
 
   // TODO: sandbox it a little
   runBin: function (command, args, cwd, exitCall, dataCall) {
-    var proc = spawn(path.join(this.path, 'bin', command), args || [], {cwd: (cwd || this.path)});
+    var opts = {cwd: (cwd || this.path), env: {PATH: process.env.PATH}};
+    var proc = spawn(path.join(this.path, 'bin', command), args || [], opts);
 
     proc.on('exit', exitCall);
     proc.stdout.setEncoding('utf8');
