@@ -40,8 +40,9 @@ exports.hookRpc = function (amqp) {
       var req = data[1];
       var res = data[2];
       
-      req.headers['x-user-id'] = message.result.user_id || -1;
-      req.headers['x-stranger-id'] = message.result.stranger_id || -1;
+      var result = message.result || {};
+      req.headers['x-user-id'] = result.user_id || -1;
+      req.headers['x-stranger-id'] = result.stranger_id || -1;
       
       req.headers['host'] = req.headers['x-forwarded-host'];
       
