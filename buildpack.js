@@ -14,16 +14,21 @@ module.exports.maintainStore = function () {
   var stock = require('./conf/buildpacks.json');
   module.exports.stock = [];
 
-  for (var i = 0; i < stock.length; i++) {
-    var pack = module.exports.fromStock(stock[i]);
+  stock.forEach(function (entry) {
+    var pack = module.exports.fromStock(entry);
     module.exports.stock.push(pack);
     // TODO: be more intelligent, have a last checked time, update at
     // most once a day or so
-    /*
-    pack.ensureLatest(function (success) {
-      console.log('ensureLatest completed on', pack.path, '-', success);
-    });//*/
-  };
+    
+    // TODO: replace with fs.exists() once the prod node.js is upgraded
+    fs.stat(pack.path, function (err, stats) {
+      if (!err) return;
+      console.log(pack);
+      pack.ensureLatest(function (success) {
+        console.log('ensureLatest completed on', pack.path, '-', success);
+      });
+    });
+  });
 };
 
 module.exports.fromStock = function (info) {

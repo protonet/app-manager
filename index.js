@@ -14,27 +14,6 @@ require('./buildpack').maintainStore();
 db.connect(function () {
   console.log('Database ready');
   
-  /*db.insert('apps', {
-    name: 'helloworld2',
-    label: 'Hello World 2',
-    manifest: {desc: "Says 'Hello' to the world again."},
-    config: {},
-    created_at: new Date()
-  }, function (err, id) {
-    console.log(err, id);
-  });//*/
-  /*
-  db.update('apps', {name: 'helloworld'}, {
-    manifest: {desc: "Says 'Hello' to the World."},
-    label: "Hello, World"
-  }, function (err) {
-    console.log(err);
-  });
-  
-  db.conn.query('SELECT * FROM `app-manager`.`apps`').on('result', function(row) {
-    console.log(row);
-  });*/
-
   var obj = {
     install: function (params, callback) {
       app.fromURI(params.uri, params.basename, function (app) {
@@ -109,27 +88,32 @@ function cleanup () {
 process.addListener('SIGINT',  cleanup); // C-c
 process.addListener('SIGTERM', cleanup); // kill
 
+setTimeout(function () {
+  app.fromName('market', function (market) {
+    if (market) {
+      dyno.start(market, 'web', null, console.log);
+    } else {
+      console.log('Installing the App Market');
+      app.fromURI('https://github.com/protonet-apps/market.git', null, function (app) {
+        app.install(function (line) {
+          console.log('market:', line);
+        }, function (err) {
+          console.log('market:', 'Installation complete');
+          app.installAddons(function () {
+            console.log('market:', "Starting a dyno");
+            dyno.start(app, "web", null, function () {
+              console.log('market:', "Application online");
+            });
+          });
+        });
+      });
+    };
+  });
+}, 30000); // let everything sync up
+
 if (process.argv[2] == 'daemon') {
   var pidfile = path.join(path.dirname(module.filename), '..', 'tmp', 'pids', 'app-manager_' + httpd.port + '.pid')
   require('fs').writeFile(pidfile, process.pid);
   process.send(true);
 };
 
-// install "uri":"https://github.com/danopia/bubblegum.git"
-// install "uri":"https://github.com/halorgium/mephisto.git"
-// install "uri":"https://github.com/TracksApp/tracks.git"
-// install "uri":"/home/danopia/Code/protonet/app-manager/apps/hellojs.zip"
-// install "uri":"git@heroku.com:simple-mist-848.git","basename":"github-bridge"
-// install "uri":"git@heroku.com:danopia.git"
-// install "uri":"git@heroku.com:duhousing.git"
-// install "uri":"git@github.com:protonet/homepage_new.git","basename":"homepage"
-
-// install "uri":"https://github.com/appelier/bigtuna.git"
-// run "app":"bigtuna","proc":"rake","args":"db:migrate"
-
-// install "uri":"https://github.com/TracksApp/tracks.git"
-// run "app":"tracks","proc":"rake","args":"db:migrate"
-
-
-// https://github.com/xlsuite/xlsuite.git
-// DB is weird

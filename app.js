@@ -22,22 +22,27 @@ var App = function (name) {
 exports.fromName = function (name, callback) {
   var app = new App(name);
 
-  app.readManifest(function (manifest) {
-    app.manifest = manifest;
-    
-    fs.readFile(app.conf, 'utf8', function (err, data) {
-      if (data) {
-        app.config = JSON.parse(data);
-        callback(app);
-      } else {
-        app.detectPack(function (pack, name) {
-          app.pack = pack;
-          app.config = {type: name}; // TODO: add pack path
-          app.saveConfig(function () {
-            callback(app);
+  fs.stat(app.root, function (err, stats) {
+    console.log([err, stats]);
+    if (err) return callback(null);
+      
+    app.readManifest(function (manifest) {
+      app.manifest = manifest;
+      
+      fs.readFile(app.conf, 'utf8', function (err, data) {
+        if (data) {
+          app.config = JSON.parse(data);
+          callback(app);
+        } else {
+          app.detectPack(function (pack, name) {
+            app.pack = pack;
+            app.config = {type: name}; // TODO: add pack path
+            app.saveConfig(function () {
+              callback(app);
+            });
           });
-        });
-      };
+        };
+      });
     });
   });
 };
