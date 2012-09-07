@@ -44,7 +44,7 @@ exports.hookRpc = function (amqp) {
       req.headers['x-user-id'] = result.user_id || -1;
       req.headers['x-stranger-id'] = result.stranger_id || -1;
       
-      req.headers['host'] = req.headers['x-forwarded-host'];
+      req.headers['host'] = req.headers['x-actual-host'] || req.headers['x-forwarded-host'];
       
       var dyno = target.dynos[Math.floor(Math.random() * target.dynos.length)];
       
