@@ -30,7 +30,6 @@ exports.hookRpc = function (amqp) {
     
     exports.queue.subscribeJSON(function(message) {
       message = JSON.parse(message.data);
-      console.log('Got response');
       
       var data = pending[message.seq];
       if (!data) return;
@@ -95,7 +94,6 @@ exports.server = http.createServer(function (req, res) {
       params: {cookie: session},
       seq: next_seq
     });
-    console.log('sent session verification request');
 
     req.pause();
     req.buffer = new Buffer(0);

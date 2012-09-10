@@ -100,9 +100,9 @@ setTimeout(function () {
         }, function (err) {
           console.log('market:', 'Installation complete');
           app.installAddons(function () {
-            console.log('market:', "Starting a dyno");
+            console.log('market:', 'Starting a dyno');
             dyno.start(app, "web", null, function () {
-              console.log('market:', "Application online");
+              console.log('market:', 'App Market online and ready for business');
             });
           });
         });

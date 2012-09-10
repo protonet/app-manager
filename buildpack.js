@@ -23,7 +23,6 @@ module.exports.maintainStore = function () {
     // TODO: replace with fs.exists() once the prod node.js is upgraded
     fs.stat(pack.path, function (err, stats) {
       if (!err) return;
-      console.log(pack);
       pack.ensureLatest(function (success) {
         console.log('ensureLatest completed on', pack.path, '-', success);
       });

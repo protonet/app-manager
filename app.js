@@ -23,7 +23,6 @@ exports.fromName = function (name, callback) {
   var app = new App(name);
 
   fs.stat(app.root, function (err, stats) {
-    console.log([err, stats]);
     if (err) return callback(null);
       
     app.readManifest(function (manifest) {
@@ -134,7 +133,6 @@ App.prototype = {
         callback(false);
       } else {
         var json = JSON.parse(data);
-        console.log(json);
         callback(json);
       };
     });
