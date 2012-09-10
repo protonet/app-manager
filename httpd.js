@@ -41,8 +41,9 @@ exports.hookRpc = function (amqp) {
       var res = data[2];
       
       var result = message.result || {};
-      req.headers['x-user-id'] = result.user_id || -1;
-      req.headers['x-stranger-id'] = result.stranger_id || -1;
+      req.headers['x-user'] = JSON.stringify(result.user || {});
+      req.headers['x-stranger'] = JSON.stringify(result.stranger || {});
+      req.headers['x-context'] = JSON.stringify(result.context || {});
       
       req.headers['host'] = req.headers['x-actual-host'] || req.headers['x-forwarded-host'] || req.headers['host'];
       
