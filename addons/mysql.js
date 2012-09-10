@@ -8,7 +8,6 @@ exports.checkDB = function (name, callback) {
             name + "' AND `Host` = 'localhost' LIMIT 1;";
   
   db.conn.query(sql, function (err, rows) {
-    console.log(err, rows);
     callback(rows.length);
   });
 };
@@ -30,7 +29,9 @@ exports.deleteDB = function (name, callback) {
                     "'@'localhost';";
   
   db.conn.query(dropUserSql).on('result', function () {
-    db.conn.query(dropDbSql).on('result', callback);
+    db.conn.query(dropDbSql).on('result', function () {
+      callback();
+    });
   });
 };
 
