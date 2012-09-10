@@ -13,7 +13,7 @@ var Dyno = function (app, type) {
   this.app = app;
   this.type = type;
   this.id = i;
-  this.name = app + '[' + type + '.' + i + ']';
+  this.name = app.name + '[' + type + '.' + i + ']';
   
   app.dynos[type][i] = this;
   exports.dynos.push(this);
