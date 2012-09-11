@@ -1,4 +1,4 @@
-[{"name":"Ruby",    "uri":"https://github.com/heroku/heroku-buildpack-ruby.git"},
+[{"name":"Ruby",    "uri":"https://github.com/protonet-apps/heroku-buildpack-ruby.git"},
  {"name":"Node.js", "uri":"https://github.com/heroku/heroku-buildpack-nodejs.git"},
  {"name":"Clojure", "uri":"https://github.com/heroku/heroku-buildpack-clojure.git"},
  {"name":"Python",  "uri":"https://github.com/heroku/heroku-buildpack-python.git"},
