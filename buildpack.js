@@ -8,6 +8,7 @@ var path  = require('path'),
 
 module.exports = function () {};
 
+module.exports.pending = 0;
 module.exports.maintainStore = function () {
   module.exports.storePath = path.join(store.root, 'buildpacks');
   
@@ -20,14 +21,34 @@ module.exports.maintainStore = function () {
     // TODO: be more intelligent, have a last checked time, update at
     // most once a day or so
     
-    // TODO: replace with fs.exists() once the prod node.js is upgraded
+    // TODO: replace with fs.exists() if/when the prod node.js is upgraded
     fs.stat(pack.path, function (err, stats) {
       if (!err) return;
+      module.exports.pending++;
       pack.ensureLatest(function (success) {
-        console.log('ensureLatest completed on', pack.path, '-', success);
+        console.log('ensureLatest completed on', pack.path, '- success:', success);
+        module.exports.pending--;
       });
     });
   });
+  
+  module.exports.timer = setInterval(function () {
+    if (module.exports.pending) return;
+    clearInterval(module.exports.timer);
+    delete module.exports.timer;
+    
+    console.log('-----> Buildpack store maintanence complete');
+    
+    if (module.exports.readyCallback)
+      module.exports.readyCallback();
+  }, 2500);
+};
+
+module.exports.whenReady = function (callback) {
+  if (module.exports.timer)
+    module.exports.readyCallback = callback;
+  else
+    callback();
 };
 
 module.exports.fromStock = function (info) {

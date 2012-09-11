@@ -5,11 +5,12 @@ var path  = require('path'),
     db    = require('./db'),
     rpc   = require('./rpc'),
     httpd = require('./httpd'),
-    app   = require('./app');
+    app   = require('./app'),
+    bp    = require('./buildpack');
 
 store.root = path.join(path.dirname(module.filename), 'store');
 
-require('./buildpack').maintainStore();
+bp.maintainStore();
 
 db.connect(function () {
   console.log('Database ready');
@@ -17,14 +18,16 @@ db.connect(function () {
   var obj = {
     install: function (params, callback) {
       app.fromURI(params.uri, params.basename, function (app) {
-        app.install(function (line) {
-          callback('partial', line);
-        }, function (err) {
-          callback('partial', "Installation complete");
-          app.installAddons(function () {
-            callback(err, "Starting a dyno");
-            dyno.start(app, "web", null, function () {
-              callback(err, "Application online");
+        bp.whenReady(function () {
+          app.install(function (line) {
+            callback('partial', line);
+          }, function (err) {
+            callback('partial', "Installation complete");
+            app.installAddons(function () {
+              callback(err, "Starting a dyno");
+              dyno.start(app, "web", null, function () {
+                callback(err, "Application online");
+              });
             });
           });
         });
@@ -39,12 +42,14 @@ db.connect(function () {
 
     upgrade: function (params, callback) {
       app.fromName(params.app, function (app) {
-        app.upgrade(function (line) {
-          callback(null, line);
-        }, function (err) {
-          callback(err, "Installation complete");
-          dyno.start(app, "web", null, callback);
-          dyno.start(app, "web", null, callback);
+        bp.whenReady(function () {
+          app.upgrade(function (line) {
+            callback(null, line);
+          }, function (err) {
+            callback(err, "Installation complete");
+            dyno.start(app, "web", null, callback);
+            dyno.start(app, "web", null, callback);
+          });
         });
       });
     },
@@ -88,11 +93,11 @@ function cleanup () {
 process.addListener('SIGINT',  cleanup); // C-c
 process.addListener('SIGTERM', cleanup); // kill
 
-setTimeout(function () {
-  app.fromName('market', function (market) {
-    if (market) {
-      dyno.start(market, 'web', null, console.log);
-    } else {
+app.fromName('market', function (market) {
+  if (market) {
+    dyno.start(market, 'web', null, console.log);
+  } else {
+    bp.whenReady(function () {
       console.log('Installing the App Market');
       app.fromURI('https://github.com/protonet-apps/market.git', null, function (app) {
         app.install(function (line) {
@@ -107,9 +112,9 @@ setTimeout(function () {
           });
         });
       });
-    };
-  });
-}, 30000); // let everything sync up
+    });
+  };
+});
 
 if (process.argv[2] == 'daemon') {
   var pidfile = path.join(path.dirname(module.filename), '..', 'tmp', 'pids', 'app-manager_' + httpd.port + '.pid')
