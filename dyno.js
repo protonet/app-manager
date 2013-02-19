@@ -71,6 +71,8 @@ Dyno.prototype.run = function (argv, callback) {
       self.log(line);
     });
   }).setEncoding("utf8");
+  
+  setTimeout(callback, 1000); // TODO
 }
 
 exports.start = function (app, proc, params, callback) {
