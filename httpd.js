@@ -110,10 +110,18 @@ exports.server = http.createServer(function (req, res) {
     res.write('<head><title>App Manager</title></head>');
     res.write('<body><h1>Running Apps</h1><ul>');
     
+    var root = req.headers['x-actual-host'] || req.headers['x-forwarded-host'] || req.headers['host'];
+    
     Object.keys(apps).forEach(function (name) {
       var info = apps[name];
       
-      res.write('<li><a href="http://' + name + '.' + conf.baseName + '/">' + name + '</a> (' + info.dynos.length + ')</li>');
+      var path;
+      if (req.headers['x-environment'] == 'development')
+        path = root + name + '/';
+      else
+        path = name + '.' + root;
+      
+      res.write('<li><a href="http://' + path + '">' + name + '</a> (' + info.dynos.length + ')</li>');
     });
     
     res.write('</ul></body></html>');
