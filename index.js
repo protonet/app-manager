@@ -10,7 +10,7 @@ var path  = require('path'),
 
 store.root = path.join(path.dirname(module.filename), 'store');
 
-bp.maintainStore();
+//bp.maintainStore();
 
 db.connect(function () {
   console.log('Database ready');
@@ -94,26 +94,21 @@ process.addListener('SIGINT',  cleanup); // C-c
 process.addListener('SIGTERM', cleanup); // kill
 
 app.fromName('market', function (market) {
-  if (market) {
-    dyno.start(market, 'web', null, console.log);
-  } else {
-    bp.whenReady(function () {
-      console.log('Installing the App Market');
-      app.fromURI('https://github.com/protonet-apps/market.git', null, function (app) {
-        app.install(function (line) {
-          console.log('market:', line);
-        }, function (err) {
-          console.log('market:', 'Installation complete');
-          app.installAddons(function () {
-            console.log('market:', 'Starting a dyno');
-            dyno.start(app, "web", null, function () {
-              console.log('market:', 'App Market online and ready for business');
-            });
-          });
+  if (market) return;
+  
+  bp.whenReady(function () {
+    console.log('Installing the App Market');
+    app.fromURI('https://github.com/protonet-apps/market.git', null, function (app) {
+      app.install(function (line) {
+        console.log('market:', line);
+      }, function (err) {
+        console.log('market:', 'Installation complete');
+        app.installAddons(function () {
+          console.log('market:', 'App Market installed and ready for business');
         });
       });
     });
-  };
+  });
 });
 
 if (process.argv[2] == 'daemon') {
