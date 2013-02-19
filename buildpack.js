@@ -68,7 +68,7 @@ module.exports.fromStore = function (name) {
 
 module.exports.detect = function (buildPath, callback, stack) {
   if (!stack) stack = module.exports.stock;
-  if (!stack.length) return callback(null);
+  if (!stack || !stack.length) return callback(null);
 
   var self = this;
 

@@ -26,6 +26,7 @@ exports.fromName = function (name, callback) {
     if (err) return callback(null);
       
     app.readManifest(function (manifest) {
+      if (!manifest) return callback(null);
       app.manifest = manifest;
       
       fs.readFile(app.conf, 'utf8', function (err, data) {
