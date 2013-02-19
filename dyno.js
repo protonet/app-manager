@@ -1,5 +1,6 @@
 var path  = require('path'),
     spawn = require('child_process').spawn,
+    net   = require('net'),
 
     httpd = require('./httpd');
 
@@ -72,7 +73,18 @@ Dyno.prototype.run = function (argv, callback) {
     });
   }).setEncoding("utf8");
   
-  setTimeout(callback, 1000); // TODO
+  // wait for the dyno to listen
+  var check = function () {
+    var sock = net.connect(env.PORT, 'localhost', function () {
+      sock.end();
+      
+      self.log('Bound to port ' + env.PORT);
+      callback && callback();
+    }).on('error',function () {
+      setTimeout(check, 250);
+    });
+  };
+  check();
 }
 
 exports.start = function (app, proc, params, callback) {
