@@ -46,6 +46,7 @@ Dyno.prototype.run = function (argv, callback) {
   this.command = this.app.config.procs[this.type];
   this.command = this.command.replace("$PORT", env.PORT);
   this.command = this.command.replace("$RAILS_ENV", env.RAILS_ENV);
+  this.command = this.command.replace("$RACK_ENV", env.RAILS_ENV);
   if (argv) this.command += " " + argv;
   this.command = this.command.split(" ");
   var opts = {cwd: this.app.slug, env: env};
@@ -86,3 +87,4 @@ exports.killAll = function () {
     dyno.proc.kill('SIGTERM');
   });
 };
+
