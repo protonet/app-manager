@@ -2,6 +2,9 @@ var http = require('http'),
 
     conf = require('./conf/httpd'),
     
+    dyno  = require('./dyno'),
+    app   = require('./app'),
+    
     pending  = {},
     next_seq = 0,
 
@@ -72,64 +75,79 @@ exports.hookRpc = function (amqp) {
   });
 };
 
+exports.handle = function (req, res, app) {
+  var cookies = {};
+  req.headers.cookie && req.headers.cookie.split(';').forEach(function (cookie) {
+    var parts = cookie.split('=');
+    cookies[parts[0].trim()] = (parts[1] || '').trim();
+  });
+  var session = cookies[conf.cookie];
+
+  next_seq += 1;
+  pending[next_seq] = [app, req, res];
+  exports.exchange.publish('rpc.requests', {
+    object: 'auth',
+    method: 'check_session',
+    params: {cookie: session},
+    seq: next_seq
+  });
+
+  req.pause();
+  req.buffer = new Buffer(0);
+  req.on('data', function (buff) {
+    var nbuff = new Buffer(req.buffer.length + buff.length);
+    req.buffer.copy(nbuff);
+    buff.copy(nbuff, req.buffer.length);
+    req.buffer = nbuff;
+  });
+  
+  return;
+};
+
 exports.server = http.createServer(function (req, res) {
   var host = req.headers['x-forwarded-host'] || req.headers.host || '';
-  var name = host.split('.')[0];
-  var target = apps[name];
   console.log(req.method, host, req.url);
   
-  if (target) {
-    var cookies = {};
-    req.headers.cookie && req.headers.cookie.split(';').forEach(function (cookie) {
-      var parts = cookie.split('=');
-      cookies[parts[0].trim()] = (parts[1] || '').trim();
-    });
-    var session = cookies[conf.cookie];
+  var name = host.split('.')[0];
   
-    next_seq += 1;
-    pending[next_seq] = [target, req, res];
-    exports.exchange.publish('rpc.requests', {
-      object: 'auth',
-      method: 'check_session',
-      params: {cookie: session},
-      seq: next_seq
-    });
-
-    req.pause();
-    req.buffer = new Buffer(0);
-    req.on('data', function (buff) {
-      var nbuff = new Buffer(req.buffer.length + buff.length);
-      req.buffer.copy(nbuff);
-      buff.copy(nbuff, req.buffer.length);
-      req.buffer = nbuff;
-    });
-
-  } else if (req.url == '/') {
-    res.writeHead(200, {'content-type': 'text/html'});
-    res.write('<!doctype html><html>');
-    res.write('<head><title>App Manager</title></head>');
-    res.write('<body><h1>Running Apps</h1><ul>');
-    
-    var root = req.headers['x-actual-host'] || req.headers['x-forwarded-host'] || req.headers['host'];
-    
-    Object.keys(apps).forEach(function (name) {
-      var info = apps[name];
+  if (apps[name]) { // use existing dyno
+    return exports.handle(req, res, apps[name]);
+  };
+  
+  app.fromName(name, function (app) {
+    if (app) { // lazy dyno booting
+      console.log("Starting a dyno of", app.name, "on-demand");
+      dyno.start(app, "web", null, function () {
+        console.log("Started");
+        exports.handle(req, res, apps[app.name]);
+      });
+    } else if (req.url == '/') {
+      res.writeHead(200, {'content-type': 'text/html'});
+      res.write('<!doctype html><html>');
+      res.write('<head><title>App Manager</title></head>');
+      res.write('<body><h1>Running Apps</h1><ul>');
       
-      var path;
-      if (req.headers['x-environment'] == 'development')
-        path = root + name + '/';
-      else
-        path = name + '.' + root;
+      var root = req.headers['x-actual-host'] || req.headers['x-forwarded-host'] || req.headers['host'];
       
-      res.write('<li><a href="http://' + path + '">' + name + '</a> (' + info.dynos.length + ')</li>');
-    });
-    
-    res.write('</ul></body></html>');
-    res.end();
-  } else {
-    res.writeHead(404, {'content-type': 'text/plain'});
-    res.end("ain't nuttin' here");
-  }
+      Object.keys(apps).forEach(function (name) {
+        var info = apps[name];
+        
+        var path;
+        if (req.headers['x-environment'] == 'development')
+          path = root + name + '/';
+        else
+          path = name + '.' + root;
+        
+        res.write('<li><a href="http://' + path + '">' + name + '</a> (' + info.dynos.length + ')</li>');
+      });
+      
+      res.write('</ul></body></html>');
+      res.end();
+    } else {
+      res.writeHead(404, {'content-type': 'text/plain'});
+      res.end("ain't nuttin' here");
+    };
+  });
 });
 
 exports.server.listen(thisPort, function () {
