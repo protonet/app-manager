@@ -187,9 +187,15 @@ App.prototype = {
     // Anything to do here?
     var self = this;
     if (this.toInstall.length == 0) {
-      spawn('ruby', ['migrate.rb'], {cwd: this.slug, env: this.config.env}).on('exit', function () {
-        return self.addonCall(); // Nothing to do here
-      });
+      console.log('Addons ready');
+      
+      if (this.manifest.setup) {
+        console.log('Running app post-install hook...');
+        spawn('sh', ['-c', this.manifest.setup], {cwd: this.slug, env: this.config.env}).on('exit', function () {
+          console.log('done.');
+          return self.addonCall(); // Nothing to do here
+        });
+      };
       
       return;
     };
@@ -200,7 +206,7 @@ App.prototype = {
     // Get the desired addon
     console.log("Installing", this.toInstall, '. . .');
     var addon = addons[this.toInstall.shift()];
-    if (!addon) throw 'No such addon: ' + addon;
+    if (!addon) return console.log('No such addon:', addon);
     
     // Ask it to install
     var self = this;
