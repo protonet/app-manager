@@ -189,7 +189,9 @@ App.prototype = {
     if (this.toInstall.length == 0) {
       spawn('ruby', ['migrate.rb'], {cwd: this.slug, env: this.config.env}).on('exit', function () {
         return self.addonCall(); // Nothing to do here
-      })
+      });
+      
+      return;
     };
     
     // Map of addon names to handlers
