@@ -58,7 +58,9 @@ Dyno.prototype.run = function (argv, callback) {
   var self = this;
   
   this.proc.on("exit", function () {
-    self.log('Crashed');
+    self.log('Crashed; removing from list of running dynos');
+    delete self.app.dynos[self.type][self.id];
+    // TODO: remove from exports.dynos
   });
 
   this.proc.stdout.on("data", function (data) {
