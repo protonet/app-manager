@@ -46,8 +46,6 @@ exports.hookRpc = function (amqp) {
       req.headers['x-stranger'] = JSON.stringify(result.stranger || {});
       req.headers['x-context'] = JSON.stringify(result.context || {});
       
-      req.headers['host'] = req.headers['x-actual-host'] || req.headers['x-forwarded-host'] || req.headers['host'];
-      
       var dyno = target.randomDyno('web');
       
       var options = {
@@ -114,7 +112,7 @@ exports.handle = function (req, res, app) {
 };
 
 exports.server = http.createServer(function (req, res) {
-  var host = req.headers['x-forwarded-host'] || req.headers.host || '';
+  var host = req.headers['x-app'] || req.headers.host || '';
   console.log(req.method, host, req.url);
   
   var name = host.split('.')[0];
