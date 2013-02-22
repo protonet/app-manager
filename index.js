@@ -1,4 +1,5 @@
 var path  = require('path'),
+    fs    = require('fs'),
     
     dyno  = require('./dyno'),
     store = require('./store'),
@@ -7,6 +8,16 @@ var path  = require('path'),
     httpd = require('./httpd'),
     app   = require('./app'),
     bp    = require('./buildpack');
+
+// Redirect output when daemonized
+if (process.argv[2] == 'daemon') {
+  var cwd     = path.dirname(module.filename);
+  var logfile = path.join(cwd, '..', 'log', 'app-manager.log');
+  var logout  = fs.createWriteStream(logfile);
+  
+  process.__defineGetter__('stdout', function () { return logout; });
+  process.__defineGetter__('stderr', function () { return logout; });
+};
 
 store.root = path.join(path.dirname(module.filename), 'store');
 
@@ -111,9 +122,8 @@ app.fromName('market', function (market) {
   });
 });
 
-if (process.argv[2] == 'daemon') {
-  var pidfile = path.join(path.dirname(module.filename), '..', 'tmp', 'pids', 'app-manager_' + httpd.port + '.pid')
-  require('fs').writeFile(pidfile, process.pid);
+// Signal to parent, if any, that we're ready
+if (process.send) {
   process.send(true);
 };
 
