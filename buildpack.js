@@ -24,6 +24,8 @@ module.exports.maintainStore = function () {
     // TODO: replace with fs.exists() if/when the prod node.js is upgraded
     fs.stat(pack.path, function (err, stats) {
       if (!err) return;
+      if (stats) return; // TODO: handle upgrades sometimes
+      console.log(stats);
       module.exports.pending++;
       pack.ensureLatest(function (success) {
         console.log('ensureLatest completed on', pack.path, '- success:', success);
@@ -41,7 +43,7 @@ module.exports.maintainStore = function () {
     
     if (module.exports.readyCallback)
       module.exports.readyCallback();
-  }, 2500);
+  }, 500);
 };
 
 module.exports.whenReady = function (callback) {
