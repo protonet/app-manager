@@ -9,7 +9,7 @@ var path  = require('path'),
 
 var App = function (name) {
   this.name  = name;
-  this.dynos = {};
+  this.dynos = [];
   
   this.root  = path.join(store.root, 'apps', name);
   
@@ -214,5 +214,25 @@ App.prototype = {
       console.log("done.");
       self._installAddon(err);
     });
+  },
+  
+  listDynos: function (type) {
+    return this.dynos.filter(function (dyno) { return dyno.type == type; });
+  },
+  
+  randomDyno: function (type) {
+    var dynos = this.listDynos(type);
+    return dynos[Math.floor(Math.random() * dynos.length)];
+  },
+  
+  nextDynoId: function (type) {
+    var used = [];
+    this.listDynos(type).forEach(function (dyno) {
+      used.push(dyno.id);
+    });
+    
+    var i = 1;
+    while (used.indexOf(i) >= 0) i++;
+    return i;
   }
 };

@@ -10,7 +10,7 @@ var path  = require('path'),
 
 store.root = path.join(path.dirname(module.filename), 'store');
 
-bp.maintainStore();
+//bp.maintainStore();
 
 db.connect(function () {
   console.log('Database ready');

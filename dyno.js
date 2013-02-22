@@ -7,16 +7,12 @@ var path  = require('path'),
 exports.dynos = [];
 
 var Dyno = function (app, type) {
-  var i = 1;
-  if (!app.dynos[type]) app.dynos[type] = {};
-  while (app.dynos[type][i]) i++;
-
   this.app = app;
   this.type = type;
-  this.id = i;
-  this.name = app.name + '[' + type + '.' + i + ']';
+  this.id = app.nextDynoId(type);
+  this.name = app.name + '[' + type + '.' + this.id + ']';
   
-  app.dynos[type][i] = this;
+  app.dynos.push(this);
   exports.dynos.push(this);
 
   this.log('Created');
@@ -59,8 +55,7 @@ Dyno.prototype.run = function (argv, callback) {
   
   this.proc.on("exit", function () {
     self.log('Crashed; removing from list of running dynos');
-    delete self.app.dynos[self.type][self.id];
-    // TODO: remove from exports.dynos
+    self.app.dynos.splice(self.app.dynos.indexOf(self), 1);
   });
 
   this.proc.stdout.on("data", function (data) {

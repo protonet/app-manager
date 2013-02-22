@@ -14,11 +14,10 @@ var http = require('http'),
 
 exports.reservePort = function (dyno) {
   if (!apps[dyno.app.name])
-    apps[dyno.app.name] = {info: dyno.app, dynos: []};
+    apps[dyno.app.name] = dyno.app;
 
   thisPort++;
   dyno.port = thisPort;
-  apps[dyno.app.name].dynos.push(dyno);
   ports[thisPort] = dyno;
   return thisPort;
 };
@@ -49,7 +48,7 @@ exports.hookRpc = function (amqp) {
       
       req.headers['host'] = req.headers['x-actual-host'] || req.headers['x-forwarded-host'] || req.headers['host'];
       
-      var dyno = target.dynos[Math.floor(Math.random() * target.dynos.length)];
+      var dyno = target.randomDyno('web');
       
       var options = {
         hostname: 'localhost',
@@ -76,6 +75,16 @@ exports.hookRpc = function (amqp) {
 };
 
 exports.handle = function (req, res, app) {
+  var dynos = app.listDynos('web');
+  if (dynos.length == 0) {
+    console.log("Starting a dyno of", app.name, "on-demand");
+    dyno.start(app, "web", null, function () {
+      console.log("Started");
+      exports.handle(req, res, apps[app.name]);
+    });
+    return;
+  };
+  
   var cookies = {};
   req.headers.cookie && req.headers.cookie.split(';').forEach(function (cookie) {
     var parts = cookie.split('=');
